@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MOLE rover inspection controls">
+  <title>MOLE · Rover Inspection</title>
+  <link rel="stylesheet" href="/assets/ui.css">
+</head>
+<body>
+  <nav class="topbar" aria-label="Primary navigation">
+    <div class="brand">MOLE <small>Mine Observation &amp; Live-alert Engine</small><span class="live-clock" id="liveClock"></span></div>
+    <div class="nav">
+      <a href="/monitoring">Monitoring &amp; AI</a>
+      <a class="active" href="/rover">Rover Inspection</a>
+    </div>
+  </nav>
+  <div class="mode-banner" id="modeBanner">
+    SIMULATED ROVER · No motor command is reaching real hardware
+  </div>
+
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Inspection</p>
+        <h1>Rover</h1>
+        <p class="lede">
+          Drive only after reviewing a monitoring warning. Ultrasonic reports centimetres.
+          IR is a short-range digital flag on GPIO19 — it does not stop the motors.
+        </p>
+      </div>
+      <a class="button" href="/monitoring">Back to Monitoring &amp; AI</a>
+    </header>
+
+    <section class="summary" id="roverSummary" aria-label="Rover summary">
+      <div>
+        <span class="micro">ROVER LINK</span>
+        <div class="row" style="margin-top:8px">
+          <span id="roverBadge" class="badge UNKNOWN">Unknown</span>
+          <strong id="roverLink">Waiting</strong>
+        </div>
+      </div>
+      <div>
+        <span class="micro">LAST COMMAND</span>
+        <strong id="commandState">STOP</strong>
+        <span class="micro">Remote operator control</span>
+      </div>
+      <div>
+        <span class="micro">FRONT DISTANCE</span>
+        <strong id="summaryDistance">— cm</strong>
+        <span class="micro">HC-SR04</span>
+      </div>
+      <div>
+        <span class="micro">IR FLAG (GPIO19)</span>
+        <strong id="summaryObstacle">Unknown</strong>
+        <span class="micro">LOW = near · does not brake</span>
+      </div>
+    </section>
+
+    <div class="rover-layout">
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>Drive controls</h2>
+            <p class="micro" style="margin-top:4px">Hold to move · release to stop</p>
+          </div>
+          <span class="badge UNKNOWN" id="driveBadge">Stopped</span>
+        </div>
+        <div class="card-body">
+          <div class="safety">
+            Keep the rover raised for the first motor test. Hold a direction to move.
+            Release, Space, or STOP sends halt. Firmware also stops after 400 ms without a repeated command.
+          </div>
+          <p class="micro" id="roverError" style="margin-top:10px"></p>
+          <div class="drive-pad" aria-label="Rover directional controls">
+            <button class="button forward" data-drive="forward" aria-label="Drive forward">FWD<br><span class="micro">W / ↑</span></button>
+            <button class="button left" data-drive="left" aria-label="Turn left">LEFT<br><span class="micro">A / ←</span></button>
+            <button class="button danger stop" data-drive="stop" aria-label="Stop rover">STOP<br><span class="micro">Space</span></button>
+            <button class="button right" data-drive="right" aria-label="Turn right">RIGHT<br><span class="micro">D / →</span></button>
+            <button class="button backward" data-drive="backward" aria-label="Drive backward">REV<br><span class="micro">S / ↓</span></button>
+          </div>
+          <p id="controlMessage" class="muted" style="text-align:center">
+            Waiting for rover connection. STOP remains available.
+          </p>
+        </div>
+      </section>
+
+      <div class="stack">
+        <section class="grid grid-2">
+          <article class="card">
+            <div class="card-head"><h2>Front distance</h2></div>
+            <div class="distance" id="distanceWrap">
+              <strong id="distance">—</strong>
+              <span>centimetres · HC-SR04</span>
+            </div>
+            <p class="micro" style="padding:0 18px 16px">
+              Ranging sensor. Tight below 25 cm. Echo must use the 1 kΩ / 2 kΩ divider into GPIO18.
+            </p>
+          </article>
+          <article class="card" id="irCard">
+            <div class="card-head">
+              <div>
+                <h2>IR obstacle flag</h2>
+                <p class="micro" style="margin-top:4px">Digital pin, not a rangefinder</p>
+              </div>
+              <span class="badge UNKNOWN" id="irBadge">Unknown</span>
+            </div>
+            <div class="card-body">
+              <p class="ir-headline" id="irHeadline">Waiting for rover telemetry.</p>
+              <p class="reason" id="irAdvice"></p>
+              <p class="micro" id="irMeta" style="margin-top:10px">
+                GPIO19 · INPUT_PULLUP · LOW = detect · firmware debounce 3 samples · does not stop motors
+              </p>
+              <p class="ir-drive" id="irDriveNote" hidden></p>
+            </div>
+          </article>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Inspection sensors</h2></div>
+          <div class="card-body">
+            <div class="metrics">
+              <div class="metric"><span>MQ-7 raw ADC</span><strong id="mq7Raw">—</strong></div>
+              <div class="metric"><span>MQ-7 local level</span><strong id="mq7Level">—</strong></div>
+              <div class="metric"><span>Rover roll</span><strong id="roverRoll">—°</strong></div>
+              <div class="metric"><span>Rover pitch</span><strong id="roverPitch">—°</strong></div>
+              <div class="metric"><span>Rover vibration</span><strong id="roverVibration">— g</strong></div>
+              <div class="metric"><span>Telemetry packet</span><strong id="roverSeq">—</strong></div>
+            </div>
+            <p class="micro" style="margin-top:12px">
+              MQ-7 is raw + NORMAL/HIGH only. It is not calibrated CO ppm.
+              Rover vibration is inspection-only and never enters the node AI.
+            </p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>How to drive</h2>
+              <p class="micro" style="margin-top:4px">This page only drives. Monitoring and AI stay on the other page.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <ul class="connection-steps">
+              <li>Hold <strong>FWD / LEFT / RIGHT / REV</strong>, or use <strong>W A S D</strong> / arrow keys.</li>
+              <li>Release the key or button to stop. <strong>Space</strong> is an immediate STOP.</li>
+              <li>Watch ultrasonic centimetres and the IR flag separately. IR does not auto-stop.</li>
+              <li>Rover IMU, MQ-7 raw, and vibration are inspection-only. They never enter Node A/B AI.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Connection checklist for tomorrow</h2></div>
+          <div class="card-body">
+            <ol class="connection-steps">
+              <li>Flash <code>firmware/rover/rover.ino</code> and power the rover safely.</li>
+              <li>On the laptop, join Wi-Fi <strong>Mine-Rover-AP</strong>.</li>
+              <li>Keep this Flask website running; it proxies commands to <strong>192.168.4.1</strong>.</li>
+              <li>Raise driven wheels off the table. Test LEFT/RIGHT motor polarity, then STOP.</li>
+              <li>Place it down only after distance, IR flag, and the 400 ms stop watchdog are confirmed.</li>
+            </ol>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/assets/rover.js"></script>
+</body>
+</html>

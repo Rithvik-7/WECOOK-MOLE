@@ -6,3 +6,10 @@ Thumbs.db
 .env.*
 *.pem
 *.key
+*.db
+*.db-wal
+*.db-shm
+software/artifacts/*.joblib
+!software/artifacts/*.prior.joblib
+.pytest_cache/
+software/pytest-cache-files-*/

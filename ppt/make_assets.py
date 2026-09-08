@@ -124,7 +124,7 @@ def architecture():
         ("3  LAPTOP PROCESSING", ORANGE, [
             ("PYTHON", "Local dashboard\nbaseline delta"),
             ("SQLITE", "Event history\non the laptop"),
-            ("AI + RULES", "Isolation Forest\nanomaly, not forecast"),
+            ("AI + RULES", "Isolation Forest +\nRidge 30 s forecast"),
         ]),
         ("4  OPERATOR INTERFACE", TEAL, [
             ("STATUS", "N / W / A\nUnknown"),

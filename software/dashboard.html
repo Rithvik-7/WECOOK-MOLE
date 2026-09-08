@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MOLE local mine-monitoring tabletop dashboard">
+  <title>MOLE · Monitoring</title>
+  <link rel="stylesheet" href="/assets/ui.css">
+</head>
+<body>
+  <nav class="topbar" aria-label="Primary navigation">
+    <div class="brand">MOLE <small>Mine Observation &amp; Live-alert Engine</small><span class="live-clock" id="liveClock"></span></div>
+    <div class="nav">
+      <a class="active" href="/monitoring">Monitoring &amp; AI</a>
+      <a href="/rover">Rover Inspection</a>
+    </div>
+  </nav>
+  <div class="mode-banner" id="modeBanner">
+    Simulated data · hardware is not connected · priors are loaded
+  </div>
+
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Tabletop monitoring</p>
+        <h1>Node A and Node B</h1>
+        <p class="lede">
+          Rules latch a warning. sklearn scores unusual combinations and forecasts
+          the next 30 seconds of these same signals. The rover is on its own page.
+        </p>
+      </div>
+      <div class="row">
+        <a class="button" href="/api/export.csv">Export CSV</a>
+        <a class="button primary" href="/rover">Open Rover Inspection</a>
+      </div>
+    </header>
+
+    <section class="summary UNKNOWN" id="systemSummary" aria-label="System summary">
+      <div>
+        <span class="micro">SYSTEM CONDITION</span>
+        <div class="row" style="margin-top:8px">
+          <span id="systemBadge" class="badge UNKNOWN">Unknown</span>
+          <strong id="systemTitle">Waiting for data</strong>
+        </div>
+      </div>
+      <div>
+        <span class="micro">NODE RECEIVER</span>
+        <strong id="receiverState">Waiting</strong>
+        <span class="micro" id="receiverDetail">USB serial</span>
+      </div>
+      <div>
+        <span class="micro">AI READINESS</span>
+        <strong id="aiReadiness">0 / 2</strong>
+        <span class="micro">Isolation Forest models ready</span>
+      </div>
+      <div class="quiet-metric">
+        <span class="micro">RECORDED</span>
+        <strong id="packetCount">0</strong>
+        <span class="micro">accepted node packets</span>
+      </div>
+    </section>
+
+    <section id="nextAction" class="next-action UNKNOWN">
+      <strong>Next action</strong>
+      <span id="nextActionText">Restore fresh, valid node data before interpreting conditions.</span>
+    </section>
+
+    <ol class="workflow" id="workflow" aria-label="Operator workflow">
+      <li data-step="monitor" class="current"><strong>1. Monitor</strong> Node A vs Node B</li>
+      <li data-step="evidence"><strong>2. Evidence</strong> Rules first, then ML</li>
+      <li data-step="inspect"><strong>3. Inspect</strong> Rover stays on its own page</li>
+    </ol>
+
+    <section id="inspectCta" class="inspect-cta" hidden>
+      <div>
+        <strong>A warning is latched.</strong>
+        <p>Review the evidence below, then open the separate rover page so driving is not mixed with charts.</p>
+      </div>
+      <a class="button primary" href="/rover">Open Rover Inspection</a>
+    </section>
+
+    <section class="rehearsal" id="rehearsalBar">
+      <strong>Rehearsal</strong>
+      <p class="micro" id="scenarioHelp">Rising trend is the judge-friendly forecast demo: Node A climbs, Node B stays quiet.</p>
+      <div class="row">
+        <button class="button small" data-scenario="normal">Normal</button>
+        <button class="button small" data-scenario="rising">Rising trend</button>
+        <button class="button small" data-scenario="watch">Watch</button>
+        <button class="button small" data-scenario="alert">Alert</button>
+        <button class="button small" data-scenario="offline">Offline</button>
+        <button class="button small" data-scenario="sensor_fault">Sensor fault</button>
+      </div>
+    </section>
+
+    <div class="grid monitor-grid" style="margin-top:14px">
+      <div class="stack">
+        <section class="grid grid-2" aria-label="Monitoring nodes">
+          <article class="card" id="nodeA"></article>
+          <article class="card" id="nodeB"></article>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>Measured signals and 30 s prediction</h2>
+              <p class="micro" style="margin-top:4px">Solid = measured · dashed = Ridge forecast · shaded = holdout error band</p>
+            </div>
+            <div class="tabs" role="tablist" aria-label="Signal chart">
+              <button class="tab active" data-chart="tilt">Tilt</button>
+              <button class="tab" data-chart="vibration">Vibration</button>
+              <button class="tab" data-chart="gap">Crack gap</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="legend">
+              <span class="a"><i></i>Node A</span>
+              <span class="b"><i></i>Node B</span>
+              <span class="forecast"><i></i>ML forecast</span>
+            </div>
+            <div class="chart-wrap"><canvas id="signalChart" aria-label="Live signal chart"></canvas></div>
+            <p id="forecastCaption" class="micro">
+              30 s sensor trend forecast — not a collapse prediction.
+            </p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>AI prediction table</h2>
+              <p class="micro" style="margin-top:4px">Holdout-selected sklearn forecast of these same signals. It is not a collapse probability.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Signal</th>
+                  <th>Now</th>
+                  <th>+30 s</th>
+                  <th>Holdout MAE</th>
+                  <th>Quality</th>
+                  <th>Time to WATCH</th>
+                  <th>Time to ALERT</th>
+                </tr>
+              </thead>
+              <tbody id="predictionRows">
+                <tr><td colspan="7" class="muted">Waiting for enough 1 Hz samples.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>Why the system is showing this condition</h2>
+              <p class="micro" style="margin-top:4px">Rules and AI are intentionally separate</p>
+            </div>
+          </div>
+          <div class="card-body evidence grid grid-2">
+            <div>
+              <p class="eyebrow">Rule evidence</p>
+              <p id="ruleEvidence" class="reason">Waiting for valid node packets.</p>
+              <p id="comparison" class="muted" style="margin-top:12px"></p>
+            </div>
+            <div>
+              <p class="eyebrow">ML evidence</p>
+              <p id="mlEvidence" class="reason">Models are inactive until live NORMAL samples are collected.</p>
+              <p class="micro" style="margin-top:12px">
+                Isolation Forest + LOF: unusual vs this rig's normal.
+                Holdout-selected Ridge/Huber/LinearRegression: 30 s sensor trend.
+                Joint Isolation Forest: A vs B residual. None of these is a collapse probability.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>Event history</h2>
+              <p class="micro" style="margin-top:4px">Acknowledging does not erase the event</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Source</th><th>Event</th><th>Evidence</th></tr></thead>
+              <tbody id="events"><tr><td colspan="4" class="muted">No events yet.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <aside class="stack">
+        <section class="card">
+          <div class="card-head"><h2>Operator actions</h2></div>
+          <div class="card-body stack">
+            <div>
+              <h3>1 · Capture orientation baseline</h3>
+              <p class="micro" style="margin-top:4px">Keep both mounts still and level.</p>
+              <div class="row" style="margin-top:10px">
+                <button class="button small" data-action="baseline" data-node="1">Baseline A</button>
+                <button class="button small" data-action="baseline" data-node="2">Baseline B</button>
+              </div>
+            </div>
+            <div>
+              <h3>2 · Train anomaly models (optional)</h3>
+              <p class="micro" style="margin-top:4px" id="trainHint">Priors are already loaded. Live retrain is optional.</p>
+              <div class="row" style="margin-top:10px">
+                <button class="button small" data-action="train" data-node="1">Train A</button>
+                <button class="button small" data-action="train" data-node="2">Train B</button>
+              </div>
+            </div>
+            <div>
+              <h3>3 · Handle a warning</h3>
+              <p class="micro" style="margin-top:4px">Ack records awareness. Clear needs three recovered NORMAL samples.</p>
+              <div class="row" style="margin-top:10px">
+                <button class="button small" data-action="ack" data-node="1">Ack A</button>
+                <button class="button small" data-action="clear" data-node="1">Clear A</button>
+                <button class="button small" data-action="ack" data-node="2">Ack B</button>
+                <button class="button small" data-action="clear" data-node="2">Clear B</button>
+              </div>
+            </div>
+          </div>
+          <details>
+            <summary>Slider two-point calibration</summary>
+            <div>
+              <p class="micro">Record ADC at two ruler-measured positions. Saved for live mode.</p>
+              <form id="calibrationForm" class="form-grid" style="margin-top:10px">
+                <label>ADC point 1<input name="adc0" type="number" required></label>
+                <label>mm point 1<input name="mm0" type="number" step="0.1" required></label>
+                <label>ADC point 2<input name="adc1" type="number" required></label>
+                <label>mm point 2<input name="mm1" type="number" step="0.1" required></label>
+                <button class="button" type="submit">Save calibration</button>
+              </form>
+            </div>
+          </details>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>AIML stack</h2>
+              <p class="micro" style="margin-top:4px">sklearn models with visible scores — not a chatbot</p>
+            </div>
+          </div>
+          <div id="mlStack" class="card-body stack"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div><h2>AI model cards</h2><p class="micro" style="margin-top:4px">Isolation Forest + LOF per node</p></div>
+          </div>
+          <div id="modelCards" class="card-body stack"></div>
+        </section>
+
+        <section class="card-flat">
+          <p class="eyebrow">Interpretation boundary</p>
+          <p class="muted">
+            NORMAL means fresh, valid data with no configured tabletop trigger.
+            It does not certify that a mine is safe.
+          </p>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/assets/monitoring.js"></script>
+</body>
+</html>

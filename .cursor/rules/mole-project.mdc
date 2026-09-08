@@ -5,28 +5,30 @@ alwaysApply: true
 
 # MOLE
 
-MOLE is one mine-monitoring and inspection project: **Node A + Node B + Rover + AI + one dashboard**. All three hardware units are in the hackathon build. The rover is not optional and not a future add-on.
+**Hackathon:** Smart India Hackathon 2026. **Official PS ID: SIH26025** (Ministry of Coal, Hardware, Disaster Management). That is SIH 2026 problem 025. Do **not** write SIH2026025 on the idea PPT or portal — catalogues and the 6-slide template use **SIH26025**.
+
+MOLE is one mine-monitoring and inspection project: **Node A + Node B + laptop ML + Rover + one dashboard**. All three hardware units are in the hackathon build. The rover is not optional. **ML is not optional either** — it is a core product pillar that answers the PS words *AI-enabled* and *prediction*. Do not pitch MOLE as sensors-plus-a-rover with a decorative “AI” badge.
 
 Help a mine safety officer **notice concerning changes, understand the evidence, and inspect remotely** on a tabletop model. Measurements can indicate disturbance. They do **not** prove a collapse or name its cause.
 
 ## Units
 
-- **Node A (fixed):** surface tilt / movement. MPU6050 orientation vs a captured baseline. Optional physically linked crack slider only if the team keeps it.
-- **Node B (fixed):** vibration / disturbance at another surface location. Same sensor family is fine; placement and purpose differ. Not a surveyed geodetic reference.
-- **Rover (mobile):** remote FWD / REV / LEFT / RIGHT / STOP inside the model tunnel. Inspects after an operator decision. Does not replace either node. Driving is not autonomous unless separately proven.
-- **USB receiver ESP32:** radio/serial infrastructure, not a fourth monitoring node.
-- **AI:** Isolation Forest anomaly detection is the real AI. Rules handle thresholds. Never claim collapse probability or a demonstrated subsidence forecast.
-- **Dashboard:** one UI for nodes and rover. Every reading is source-tagged and timed. Rover vibration is never treated as Node B. Green means healthy data, not a certified-safe mine.
+- **Node A (fixed):** classic ESP32-WROOM-32. MPU6050 on GPIO21/22 (0x68). 10 kΩ linear crack slider on GPIO34. `NODE_ID=1`, `HAS_POT=1`.
+- **Node B (fixed):** same ESP32 + MPU, **no slider**. Comparison location, not a surveyed geodetic reference. `NODE_ID=2`, `HAS_POT=0`.
+- **Rover (mobile):** classic ESP32-WROOM-32. Remote FWD / REV / LEFT / RIGHT / STOP. Payload frozen: L298N, MPU6050, HC-SR04, MQ-7 (raw), IR. Wi-Fi AP `Mine-Rover-AP`, not ESP-NOW. Not autonomous.
+- **USB receiver:** **Waveshare ESP32-S3-Zero** (not ESP32-S2, not the Node A/B board). ESP-NOW ch1 → USB-C JSON 115200. No sensors. Native USB CDC On Boot enabled.
+- **ML (core, on the laptop, scikit-learn):** Isolation Forest (unusual vs this rig’s normal) **plus** Ridge **30 s sensor-trend forecast** (MAE shown). That forecast is the hackathon “prediction”. Feature names, train count, score, and MAE must be visible. Never show collapse/subsidence probability. Rules are the early-warning latch; ML cannot clear them. No LLM, no camera vision, no login.
+- **Dashboard:** one **local website** on the laptop (Flask, no accounts). USB nodes + rover AP proxy. Every reading source-tagged and timed. Rover vibration is never treated as Node B. Green means healthy data, not a certified-safe mine.
 
-Workflow: nodes detect → AI/rules analyse → dashboard explains → operator inspects → rover reports back.
+Workflow: nodes detect → **rules latch + ML (Isolation Forest + Ridge)** analyse → dashboard explains both → operator inspects → rover reports back.
 
 ## Hardware reality
 
-The team already has the parts for nodes, rover, and supporting gear (borrowed / jugaad). **Do not block on budget, BOM, or the old ₹4,000 node-only figure.** Owning a part still does not mean it is a promised feature until it is selected, wired, and shown.
+The team already has the parts. **Do not block on budget, BOM, or the old ₹4,000 node-only figure.** Pin maps and the S3-Zero receiver are frozen (see `mole-hardware` rule and `SOFTWARE-PLAN.md`). This repo still has to grow firmware + Python from zero.
 
 ## Do not assume
 
-Exact final rover payload, whether the crack slider stays, the rover radio path, camera-as-AI-vision, LoRa, or autonomous navigation. The node ESP-NOW USB gateway does not automatically carry rover commands or video. The existing starter covers two nodes + simulated dashboard (11 tests); rover software still has to be added.
+Camera-as-AI-vision, LoRa, autonomous navigation, or CO ppm from an uncalibrated MQ-7. The S3-Zero USB path does **not** carry rover commands or video. Rover software is required for the demo but stays on its own Wi-Fi AP.
 
 ## Pitch order
 

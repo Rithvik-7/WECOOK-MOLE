@@ -1,0 +1,109 @@
+MASTER PROMPT — SIH 2026 IDEA PPT (paste into Gamma / ChatGPT / Copilot / Designer)
+
+You are producing the official Smart India Hackathon 2026 idea submission deck for Team WE COOK.
+
+OUTPUT RULES
+- Exactly 6 slides. Widescreen 16:9. No 7th slide.
+- Use ONLY the official SIH 2026 IDEA template chrome: keep SIH 2026 branding, footer “@SIH Idea submission- Template”, slide numbers 1–6, team-name oval = WE COOK.
+- Do not invent extra sections (no team roster, no mentor bios, no 36-hour Gantt, no BOM, no ₹ / budget, no “lives saved”, no SDG collage).
+- No paragraphs. Tables, 3-box rows, and one process arrow strip only.
+- Calibri. Dark navy + one orange accent. White body. High contrast. Body ≥11 pt. No wallpaper photos of mines.
+- File for portal: PDF of these 6 slides only.
+- PS ID is SIH26025 (never SIH2026025). Category Hardware. Theme Disaster Management. Organisation Ministry of Coal.
+
+TONE
+Judges scan in ~2 minutes. Every cell must be checkable on a tabletop demo. Prefer “what the officer sees” over slogans. If a number is a demo threshold, label it tabletop — not DGMS.
+
+FORBIDDEN CLAIMS
+- Ground sank X cm / collapse probability / certified early warning / mine is safe because green
+- Camera vision, LoRa, mesh, autonomous rover, CO ppm from MQ-7, LLM geology
+- Budget, parts cost, “₹4000 kit”, shopping lists
+- Teammate names, branches, photos, “we are passionate”
+- Mixing rover IMU into Node B or into Isolation Forest
+
+PRODUCT FACTS (do not “improve”)
+MOLE = Node A + Node B + laptop ML + dashboard + rover. One project.
+
+Hardware:
+- Node A: classic ESP32-WROOM-32, MPU6050 GPIO21/22 0x68, 10 kΩ linear crack slider GPIO34, NODE_ID=1
+- Node B: same ESP32+MPU, no slider, comparison location not a surveyed reference, NODE_ID=2
+- Receiver: Waveshare ESP32-S3-Zero, ESP-NOW channel 1 broadcast, USB-C JSON 115200, no sensors
+- Rover: classic ESP32, L298N, MPU, HC-SR04, MQ-7 raw ADC, IR, Wi-Fi AP Mine-Rover-AP 192.168.4.1, remote FWD/REV/LEFT/RIGHT/STOP, not autonomous, no camera
+- Rover radio is NOT the node USB path
+
+ML on laptop (core, scikit-learn):
+- Isolation Forest: unusual vs this rig’s NORMAL; ≥120 samples/node; INACTIVE|READY|UNUSUAL + score + top feature
+- Ridge: next 30 seconds of measured tilt/vibration/crack + MAE. On-screen label: “Sensor forecast (30 s). Not a collapse prediction.”
+- Rules are the early-warning latch. ML cannot clear WATCH/ALERT.
+- Explanations are number templates. No LLM.
+
+Demo thresholds (tabletop):
+- WATCH: 3 consecutive samples, 3° tilt or 2 mm crack
+- ALERT: 6° or 4 mm, latched
+- UNKNOWN if stale >5 s
+- Green = healthy data, not certified-safe mine
+
+Workflow to pitch: quiet monitoring → controlled disturb → rules + AI evidence → operator drives rover because a warning appeared.
+
+SLIDE-BY-SLIDE (do not reorder)
+
+SLIDE 1 — TITLE PAGE
+Fill only:
+- Problem Statement ID: SIH26025
+- Problem Statement Title: Development of an AI-enabled Low Cost Real Time Mine Subsidence Monitoring, Prediction and Early Warning System for Underground Coal Mines in India
+- Theme: Disaster Management
+- PS Category: Hardware
+- Team ID: [PORTAL PLACEHOLDER]
+- Team Name: WE COOK
+Add one extra line if space: Idea — MOLE: monitor the model, warn from evidence, inspect on command.
+No member table.
+
+SLIDE 2 — IDEA TITLE = MOLE — Proposed Solution
+Required pointers: detailed solution / how it addresses PS / innovation.
+Layout:
+- One sentence under title.
+- Three equal cards: 1 MONITOR (A+B+USB) | 2 WARN+PREDICT (rules + Isolation Forest + Ridge) | 3 INSPECT (rover after decision)
+- Full-width table: columns PS word | What MOLE actually does | What we do not claim
+  Rows: Monitoring, Early warning, AI-enabled, Prediction, Uniqueness
+
+SLIDE 3 — TECHNICAL APPROACH
+Required pointers: technologies / methodology.
+Layout:
+- Tech table: Layer | Stack | Role  (Nodes, Receiver, Laptop ML, Rover)
+- Horizontal 6-step flow: Node A/B → S3-Zero USB → Validate+features → Rules+IF+Ridge → Dashboard 127.0.0.1 → Rover AP inspect
+- Engine table: Rules latch | Isolation Forest | Ridge 30 s  with Input and Output shown to officer
+
+SLIDE 4 — FEASIBILITY AND VIABILITY
+Required pointers: feasibility / risks / strategies.
+Layout:
+- One honest sentence: tabletop SIH demo, not field certification.
+- Left table: Feasibility check | Status (parts available, ESP-NOW tabletop, 2 min train, local Flask, demo loop)
+- Right table: If this happens | Fallback (UNKNOWN not fake-green; AI INACTIVE if untrained; simulate banner; rover STOP timeout; uncalibrated slider)
+- Bottom risk table: Over-claim / mixing rover with nodes / false comfort / unencrypted radio — each with a containment strategy
+No money. No “36-hour we can do anything”.
+
+SLIDE 5 — IMPACT AND BENEFITS
+Required pointers: target audience / social economic environmental benefits.
+Layout:
+- One sentence: demo user = safety officer on a model; Ministry of Coal owns the PS.
+- Four cards: Who / Social / Operational / Environment-limits (hobby electronics, not DGMS, not intrinsically safe)
+- Table: Benefit we can show | How a judge verifies | Not a benefit we invent
+
+SLIDE 6 — RESEARCH AND REFERENCES
+Required pointers: details/links of reference work.
+Table: Item | Why it is here | Link/citation
+Include only real items:
+- SIH26025 catalogue ID
+- Liu, Ting, Zhou Isolation Forest ICDM 2008
+- scikit-learn Ridge + MAE
+- InvenSense MPU-6000/6050 spec
+- Espressif ESP-NOW User Guide
+- Waveshare ESP32-S3-Zero wiki
+- MQ-7 datasheet (raw ADC, not ppm)
+- Ministry of Coal / DGMS published subsidence context — labelled “context only”
+Footer close: nodes detect, rules latch, IF+Ridge explain, rover inspects.
+
+QUALITY BAR
+If you want to add a visual, it must encode a fact already in a table (flow, A vs B, latch). Do not add stock coal-mine panoramas, robot clipart, or neural-net spaghetti.
+If a cell is not demonstrable this week, delete it.
+Return: 6-slide PPTX matching the official template, plus a one-page speaker crib (30 seconds per slide) that uses the same words as the slides.

@@ -382,7 +382,7 @@ def build():
         [
             "Python dashboard. SQLite event history.",
             "Rules: Watch / Alert after 3 consecutive samples; 5 s stale → UNKNOWN.",
-            "AI: scikit-learn Isolation Forest vs learned normal. Anomaly detector only.",
+            "AI: Isolation Forest vs learned normal plus Ridge 30 s sensor forecast.",
             "AI cannot clear a rule alert. If untrained, show INACTIVE.",
             "Every reading is source-tagged and timed.",
         ],

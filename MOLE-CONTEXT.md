@@ -2,19 +2,28 @@
 
 **How to use this file:** Paste or attach the entire document before asking any AI, teammate, or tool to work on MOLE. Do not summarise it first. This is the current project definition. If an older PDF, blueprint, starter README, or chat says something different, **this file wins.**
 
-**Last updated:** 7 September 2026  
-**Team size:** 6  
-**Build type:** Hackathon hardware + software demonstration on a tabletop model mine  
+**Last updated:** 9 September 2026  
+**Hackathon:** Smart India Hackathon 2026  
+**Official PS ID:** **SIH26025** (Ministry of Coal · Hardware · Disaster Management)  
+**PS title:** Development of an AI-enabled Low Cost Real Time Mine Subsidence Monitoring, Prediction and Early Warning System for Underground Coal Mines in India  
+**Team size:** 6 (team name: WE COOK)  
+**Build type:** Hackathon hardware + **laptop ML** + software demonstration on a tabletop model mine  
 **Parts status:** The team already has the components for Node A, Node B, the rover, and supporting gear (borrowed / jugaad). Do **not** block on budget, shopping lists, or the old ₹4,000 node-only figure.
+
+**PS ID note:** SIH 2026 problem 025 is catalogued as **SIH26025**. Do not put `SIH2026025` on the official idea PPT or SIH portal. That string is year+025 concatenated; judges and the template match **SIH26025**.
+
+**Hardware freeze (9 Sep):** Receiver is a **Waveshare ESP32-S3-Zero**, not the classic ESP32 used on Node A/B and not an ESP32-S2. Node A keeps the 10 kΩ linear slider. Rover payload and GPIOs are frozen. Rover radio stays **Wi-Fi AP**, separate from node ESP-NOW. Software build order lives in `SOFTWARE-PLAN.md`. AI + operator website: `AI-PLAN.md`. Firmware and the local two-page website are implemented; physical flashing and live hardware validation remain.
 
 ---
 
 ## 1. One-line definition
 
-MOLE combines two fixed surface-monitoring nodes and an actively deployed inspection rover, supported by AI-assisted analysis and one dashboard, to help mine safety officers detect concerning changes and investigate them with traceable evidence.
+MOLE is an **ML-backed** tabletop mine-monitoring and inspection system: two fixed nodes stream live tilt/vibration/crack, the laptop runs **Isolation Forest + Ridge forecast** plus rule-based early warning, one dashboard shows the evidence, and a rover inspects after the officer decides.
 
-**MOLE is one integrated project: Node A + Node B + Rover + AI analysis + Dashboard.**  
-All three hardware units belong to the hackathon build. **The rover is not optional and not a future add-on.**
+**MOLE is one integrated project: Node A + Node B + ML (Isolation Forest + Ridge) + Rover + Dashboard.**  
+Hardware without trained/visible ML does **not** answer SIH26025. ML without live nodes is a demo of charts, not the PS. The rover is **not** optional and **not** the product by itself.
+
+**ML is a core product pillar, not garnish.** Judges must see named models, features, a score / MAE, and a written reason from numbers. A chatbot, purple “AI” watermark, or collapse-% slider is not that.
 
 ---
 
@@ -38,37 +47,36 @@ The dashboard brings this together. AI helps identify unusual patterns.
 ## 3. The complete system
 
 ```text
-             SURFACE ABOVE THE MODEL MINE
-
-    NODE A                         NODE B
-    Tilt / ground movement        Vibration / disturbance
-    monitoring                     monitoring
-            │                              │
-            └──────── Sensor data ──────────┘
-                           │
-                           ▼
-                 PROCESSING + AI ANALYSIS
-              Check readings, analyse patterns,
-                identify unusual conditions
-                           │
-                           ▼
-                     MOLE DASHBOARD
-              Node status, graphs, warnings,
-               explanations and event history
-                           │
-                           ▼
-                   OPERATOR DECISION
-                 Inspect the affected area
-                           │
-                           ▼
-                         ROVER
-              Moves inside the model mine,
-              collects inspection information
-                           │
-                           └──── Back to the dashboard
+ NODE A                         NODE B
+ Classic ESP32                  Classic ESP32
+ MPU6050 + 10k slider           MPU6050 (no slider)
+    │                              │
+    └──────── ESP-NOW CH 1 ────────┘
+                    │
+                    ▼
+        WAVESHARE ESP32-S3-ZERO
+              RECEIVER (no sensors)
+                    │
+               USB-C / 115200 JSON
+                    │
+                    ▼
+                  LAPTOP  (this is where ML lives)
+          Python + SQLite + rules
+          Isolation Forest (anomaly) + Ridge 30 s (prediction)
+                Dashboard
+                    │
+                    ▼
+            OPERATOR DECISION
+                    │
+                    ▼
+                 ROVER  (separate radio)
+          Classic ESP32 + L298N + MPU + HC-SR04 + MQ-7 + IR
+                Wi-Fi AP Mine-Rover-AP → 192.168.4.1
+                    │
+                    └──── inspection telemetry back to dashboard
 ```
 
-**The nodes detect changes. AI analyses the readings. The dashboard explains them. The rover investigates.**
+**The nodes detect changes. ML + rules analyse the readings (this is the SIH “AI-enabled / prediction / early warning” layer). The dashboard explains them. The rover investigates.**
 
 Pitch order for judges: lead with **continuous monitoring and evidence**, then drive the rover **because a warning appeared**. Do not pitch MOLE as a gas-car maze robot.
 
@@ -79,8 +87,8 @@ Pitch order for judges: lead with **continuous monitoring and evidence**, then d
 ### Distinguish these carefully
 
 - **Three main hardware units:** Node A, Node B, Rover.
-- **Controller-board count** may be higher. A separate ESP32 USB receiver / gateway is **supporting communication infrastructure**, not another monitoring node.
-- A typical arrangement is four boards: Node A, Node B, USB gateway, rover controller.
+- **Controller-board count** may be higher. A separate **Waveshare ESP32-S3-Zero** USB receiver is **supporting communication infrastructure**, not another monitoring node.
+- Four boards: Node A (classic ESP32), Node B (classic ESP32), S3-Zero receiver, rover (classic ESP32).
 
 ### Node A — tilt and movement monitoring (fixed)
 
@@ -104,14 +112,12 @@ Not allowed: “The ground has sunk by 10 centimetres.”
 
 Tilt measures **orientation**. Measuring actual vertical settlement needs a different arrangement.
 
-**Optional crack measurement:** An earlier hardware plan included a physically linked sliding sensor (typically a 10 kΩ linear slide potentiometer) to demonstrate crack opening.
+**Crack measurement (frozen for this build):** Node A uses a 10 kΩ **linear** slide potentiometer, SIG through 1 kΩ to **GPIO34**, VCC 3V3, GND common. Optional 100 nF from GPIO34 to GND.
 
 - One side attaches to the fixed part of the model.
 - The other follows the moving part.
-- The sensor changes as the gap opens.
-- Calibration converts the reading into approximate model-gap movement.
-
-This is **proposed and already present in the software starter**. Do **not** silently assume it is confirmed as final hardware until the team says so. If retained, it must be a guided physical linkage, not a free-turning knob.
+- Firmware sends raw ADC only. The laptop converts to approximate model-gap millimetres after two-point ruler calibration.
+- It must be a guided physical linkage, not a free-turning knob.
 
 **Existing starter firmware behaviour for Node A:** MPU6050 gravity-based roll/pitch, vibration RMS proxy, and raw ADC from the slider. Tilt change is computed as:
 
@@ -175,17 +181,17 @@ The rover is a **core part of MOLE** and part of this hackathon implementation. 
 
 **Remote operation is the current baseline.** Fully autonomous navigation has **not** been confirmed or demonstrated. The rover can be part of an AI-assisted workflow without pretending its driving is autonomous.
 
-**What it sends back depends on the payload finally selected.** Do not list unselected sensors as completed features.
+**Frozen rover payload (9 Sep):** MPU6050, HC-SR04 (ECHO via 1k/2k divider into GPIO18), MQ-7 analog raw on GPIO36, IR on GPIO19 (LOW = obstacle), L298N IN1–IN4 = 13/12/14/27. Control is Wi-Fi AP `Mine-Rover-AP` at `192.168.4.1` (`/forward /backward /left /right /stop /telemetry`).
 
 | Rover capability | Information returned |
 |---|---|
-| Ultrasonic obstacle sensing | Distance to an object ahead |
-| Camera, if included | Inspection images or video |
-| Environmental sensors, if included | Local environmental readings |
-| Communication monitoring | Connection status and last update |
-| Battery measurement, if implemented | Power status |
+| Ultrasonic (HC-SR04) | Distance ahead (cm) |
+| IR obstacle | Boolean obstacle flag |
+| MQ-7 | **Raw ADC** and NORMAL/HIGH vs a tested threshold — not CO ppm until calibrated |
+| MPU6050 | Roll / pitch / vibration proxy (inspection only; never merge into Node B) |
+| Communication | AP connection status and last `/telemetry` update |
 
-The original rover idea mentioned gas, temperature, flame, and obstacle sensors. **The exact final combination is not yet frozen.** A camera feed is **not** automatically an AI vision system. Those are separate capabilities.
+A camera is **not** in this freeze. A camera feed would not be AI vision anyway unless a vision model is actually implemented. Flame, DHT11, and LoRa stay out unless separately built.
 
 **Relationship with the nodes:** The rover does **not** replace either node. While the rover investigates, the fixed nodes continue monitoring. The dashboard must distinguish:
 
@@ -196,19 +202,21 @@ A vibration reading from the moving rover must **never** be interpreted as vibra
 
 Rover operation for the hackathon is in the **safe tabletop model**. Real underground deployment would need appropriate equipment, approvals, and procedures.
 
-**Important integration fact:** The existing node ESP-NOW USB receiver does **not** already handle rover commands, inspection telemetry, or video. Rover communication must be designed and integrated separately.
+**Important integration fact:** The node ESP-NOW USB receiver does **not** handle rover commands, inspection telemetry, or video. Rover communication is a **separate Wi-Fi AP** (`Mine-Rover-AP`). The laptop dashboard must talk to both: USB serial for nodes, HTTP to `192.168.4.1` for the rover.
 
 ### USB gateway / receiver (not a monitoring node)
 
-Earlier starter architecture:
+**Board: Waveshare ESP32-S3-Zero** (ESP32-S3FH4R2, native USB-C, onboard antenna). Not the classic ESP32-WROOM-32 DevKit used on Node A/B/rover, and not an ESP32-S2.
 
-- ESP-NOW for the fixed nodes (2.4 GHz channel 1, unencrypted broadcast, local tabletop only)
-- An ESP32 receiver connected to the laptop by USB
-- A local dashboard running on the laptop
+- ESP-NOW from the fixed nodes (2.4 GHz **channel 1**, unencrypted broadcast `FF:FF:FF:FF:FF:FF`, local tabletop only)
+- No MPU or other sensors on the receiver
+- Arduino: `Waveshare ESP32-S3-Zero` or fallback `ESP32S3 Dev Module`; **USB CDC On Boot = Enabled**
+- `Serial.begin(115200)`; laptop reads newline-delimited JSON
+- If upload fails: hold BOOT, connect USB / press RESET, release BOOT, then upload
 
-Gateway forwards newline-delimited JSON at **115200 baud**. It is infrastructure.
+The receiver only: listen → check size/version → emit one JSON object per line. It does not run rules or AI.
 
-**LoRa is not currently demonstrated.** If chosen later, that is a specific hardware and integration decision. Do not claim LoRa unless it is built and shown.
+**LoRa is not currently demonstrated.** Do not claim LoRa unless it is built and shown. The S3-Zero path does **not** carry rover commands or video.
 
 ---
 
@@ -218,10 +226,10 @@ Each reading should identify its **source** and its **time**.
 
 | Source | Main inputs |
 |---|---|
-| Node A | Tilt readings, movement from baseline, optional crack measurement |
-| Node B | Acceleration, vibration strength and disturbance duration |
-| Rover | Inspection readings, optional images, connection status |
-| All units | Device ID, timestamp or sequence information, data-validity status |
+| Node A | Tilt (roll/pitch), vibration proxy, crack slider ADC |
+| Node B | Tilt (roll/pitch), vibration proxy (comparison location) |
+| Rover | Distance, IR obstacle, MQ-7 raw, rover IMU, AP status |
+| All units | Device ID, timestamp or sequence, data-validity status |
 | Operator | Acknowledgement, inspection request, rover movement commands |
 
 ---
@@ -273,52 +281,34 @@ The dashboard shows readings, status, reason, and history so the operator can de
 
 ---
 
-## 7. Exactly where AI fits
+## 7. Exactly where ML fits (core, not optional)
 
-**AI is the analytical part of MOLE. It does not need to control every software function for the project to genuinely use AI.**
+**ML is a required product layer for SIH26025.** The PS is *AI-enabled monitoring, prediction, and early warning*. Hardware collects; **scikit-learn on the laptop** is how we honestly do AI-enabled + prediction. Rules do early-warning latch. The rover does not replace ML.
 
-### A. Anomaly detection (primary, credible)
+It does **not** need to control motors or invent geology. It **does** need to be trained, persisted, scored, and shown.
 
-The most credible initial AI capability. The model learns examples of normal sensor behaviour and identifies readings that look unusual.
+Hackathon ML is specified in `AI-PLAN.md`. Summary:
 
-Candidate already in the earlier software plan: **Isolation Forest** (scikit-learn), with StandardScaler.
+### A. Anomaly detection (Isolation Forest)
 
-Possible inputs:
-
-- Tilt change
-- Vibration strength
-- Crack change, if available
-
-Output: an indication that a reading or combination of readings is unusual.
-
-It does **not** automatically produce a trustworthy collapse probability.
-
-In the starter: train only in **LIVE** mode after at least **120 genuine healthy NORMAL samples per node**. Training is blocked in simulated mode and during an active/latched warning. Changing calibration resets the node model. The model is in-memory and must be retrained after restart. Two minutes of one tabletop condition demonstrates anomaly processing; it does **not** validate a model or predict subsidence.
+Learns this tabletop’s quiet behaviour. Flags unusual combinations of tilt change, vibration, optional crack mm, and A-vs-B residual. Persisted with joblib. Train only on live NORMAL samples (≥120/node). Output: INACTIVE / READY / UNUSUAL + score + top feature. **Not** a collapse probability.
 
 ### B. Combining evidence
 
-The dashboard can present both nodes together, for example: “Movement increased at Node A while vibration increased at Node B.”
-
-AI can analyse combinations of features when the training data supports that. Identifying the precise physical cause remains a separate challenge.
+Dashboard presents both nodes: e.g. “Movement increased at Node A while Node B stayed near baseline” (local) vs both moving together (common / table).
 
 ### C. Prediction — two different claims
 
-1. **Predicting a future sensor trend:** estimating how a measured signal may develop.
-2. **Predicting mine subsidence or collapse:** estimating a physical hazard using validated site evidence.
-
-The second is much harder. It needs representative historical data, reliable ground-truth labels, and geotechnical validation.
-
-For the initial pitch: explain the prediction **objective and development path**. Distinguish that from a capability **actually demonstrated** at the hackathon. Do not claim demonstrated collapse/subsidence prediction unless it is truly built, trained on suitable data, and tested.
+1. **Sensor-trend prediction (built):** Ridge forecasts the **next 30 seconds** of the measured tilt/vibration/crack series, with MAE. Optional time-to-WATCH/ALERT **if the current rate holds**. On-screen label: not a collapse prediction.
+2. **Mine subsidence or collapse prediction (not claimed):** needs surveyed mounts, labelled events, geotechnical validation. Spoken as field path only.
 
 ### D. Explanations
 
-MOLE should give an understandable account of the evidence, for example: “Persistent tilt change at Node A. Review the trend and inspect the indicated area.”
+Template sentences from actual fields. **No LLM.** Must not invent an underground event.
 
-Explanations must come from actual readings and alert reasons. They must **not** invent an underground event.
+### E. Rover
 
-### E. Rover assistance
-
-AI could later help analyse inspection images or assist navigation. Those are **additional** AI functions. They are **not** included simply because the rover connects to the dashboard.
+Remote drive + inspection sensors. **No camera, no vision model, no autonomous AI driving.** Rover samples do not train node models.
 
 ---
 
@@ -361,11 +351,11 @@ The dashboard is the common interface for the entire project.
 
 ### Rover inspection view (required for the integrated project)
 
-- Rover movement controls
-- Stop control
+- Rover movement controls (hold-to-move + STOP)
 - Connection status
-- Available inspection readings
-- Camera view if the camera is included
+- Distance, IR, MQ-7 raw, rover IMU (inspection only)
+
+**No camera view.** A camera is not in this build.
 
 ### Event history
 
@@ -422,63 +412,47 @@ That demonstrates an integrated monitoring-and-inspection workflow.
 
 ### Confirmed
 
-- Node A
-- Node B
-- Rover
-- AI analysis
-- A shared dashboard
-- A tabletop mine demonstration
-- All three hardware units belong to the hackathon implementation
-- Six team members
-- Hardware components for nodes, rover, and supporting gear are already available
-- Budget is **not** a blocking constraint
+- Node A, Node B, Rover, AI analysis, shared dashboard, tabletop demo
+- All three hardware units belong to the hackathon implementation (rover is **core**; its **radio is separate**)
+- Receiver = **Waveshare ESP32-S3-Zero**, native USB CDC, ESP-NOW channel 1, JSON at 115200
+- Node A slider (10 kΩ linear, GPIO34) is in the build
+- Rover pins and payload: L298N 13/12/14/27, MPU 21/22, TRIG 5, ECHO 18 via divider, MQ-7 GPIO36 raw, IR GPIO19
+- Rover control: Wi-Fi AP `Mine-Rover-AP` / `192.168.4.1`
+- Six team members; parts already available; budget is **not** a blocking constraint
+- Software is to be written in this repo from zero per `SOFTWARE-PLAN.md`
 
-### Still needing a final specification
+### Still needing care (do not silently over-claim)
 
-Do **not** silently fill these in:
+- Camera (not in the frozen rover map)
+- Autonomous driving (default: **no**)
+- Calibrated MQ-7 ppm (default: raw + NORMAL/HIGH only)
+- LoRa / field range
+- How much live NORMAL data you actually collect for Isolation Forest before the pitch
 
-- Exact sensors on each node as finally mounted
-- Whether to retain the crack-linkage sensor
-- Exact rover payload, including whether it has a camera
-- Final communication arrangement for the rover (separate from the node gateway)
-- Whether any autonomous driving is in scope (default: **no**, unless implemented and tested)
-- The available real data for AI training and evaluation
-
-**Owning a part does not mean it is a promised feature** until it is selected, wired, and shown.
-
-Recommended freeze if the team must choose a minimum rover payload: drive + one inspection sensor (often ultrasonic ahead-distance) + connection status. Camera only if actually used in the demo. Do not list MQ gas, flame, LoRa, vision models, or autonomous navigation as completed unless they are.
+**Owning a part does not mean it is a promised feature** until it is selected, wired, and shown. The 9 Sep freeze *is* that selection for slider, S3-Zero, and rover payload.
 
 ---
 
-## 11. Current software evidence (as of 6–7 September 2026)
+## 11. Current software evidence (as of 9 September 2026)
 
-There is an earlier **runnable software starter** and simulated dashboard. **11 software tests pass.** That does **not** establish that the complete three-unit hardware system, integrated rover controls, or predictive AI has already been built and tested.
+This git repo has firmware (`firmware/`) and a local dashboard (`software/`). An earlier **runnable starter** (two nodes + simulated dashboard, 11 tests) existed as a 6 Sep pack **outside this tree**; this tree now has its own implementation.
 
-The starter supports:
+When that starter is ported or rewritten, it should still support:
 
-- Two surface nodes: N1 / Node A (IMU + optional crack linkage) and N2 / Node B (IMU)
-- Third ESP32 USB gateway
+- Two surface nodes: Node A (IMU + crack slider) and Node B (IMU, no pot)
+- Waveshare ESP32-S3-Zero USB receiver (replace any classic-ESP32 `gateway.ino`)
 - ESP-NOW for nodes, **not** LoRa
 - Local Python HTTP dashboard (`python app.py --mode simulate` or `--mode live --serial COMx`)
 - Packet validation, stale nodes, duplicate rejection, calibration, rule engine, latch/ack/clear
 - Optional Isolation Forest after live baseline collection
 - SQLite storage and CSV export tagged live vs simulate
+- Then **extend** with rover AP proxy + rover panel (the old starter did not)
 
-The starter **explicitly does not** (and must now be extended to) actuate a rover, ingest rover telemetry, send SMS, implement LoRa, predict mine collapse, or certify safety.
+The laptop must **not** actuate a rover over the node USB path, send SMS, implement LoRa, predict mine collapse, or certify safety.
 
-Known starter files (from the 6 Sep pack; copy/adapt rather than reinvent blindly):
+### Node telemetry JSON contract (schema 1)
 
-- `software/app.py` — backend and rules
-- `software/dashboard.html` — UI
-- `software/test_app.py` — 11 tests
-- `software/TELEMETRY.md` — JSON contract
-- `firmware/node/node.ino` — Node A (`NODE_ID 1`, HAS_POT) and Node B (`NODE_ID 2`)
-- `firmware/gateway/gateway.ino` — USB receiver
-- Firmware was **source-reviewed**, not compiled or flashed in the authoring environment. Target: classic ESP32-WROOM-32, Arduino ESP32 core **3.3.8**.
-
-### Node telemetry JSON contract (starter schema 1)
-
-Gateway sends one JSON object per line at 115200 baud.
+Receiver sends one JSON object per line at 115200 baud. On air, nodes send the binary `SensorPacket` in `SOFTWARE-PLAN.md`; the S3-Zero translates to JSON.
 
 Node A example:
 
@@ -492,11 +466,11 @@ Node B example (no crack sensor):
 {"type":"telemetry","schema":1,"node_id":2,"seq":17,"uptime_ms":17000,"gateway_ms":18500,"valid":5,"roll_deg":0.03,"pitch_deg":0.06,"vibration_g":0.003,"adc_raw":null}
 ```
 
-`valid` bitmask: IMU angles = 1, potentiometer ADC = 2, complete vibration window = 4. Healthy Node A = 7; healthy Node B = 5. Invalid fields are `null`. Laptop receipt time governs freshness. Gateway `type:"status"` lines are diagnostics, not measurements.
+`valid` bitmask: IMU angles = 1, potentiometer ADC = 2, complete vibration window = 4. Healthy Node A = 7; healthy Node B = 5. Invalid fields are `null`. Laptop receipt time governs freshness. Receiver `type:"status"` lines are diagnostics, not measurements.
 
-**This schema currently allows `node_id` 1 or 2 only.** Rover integration will need a new device identity and must not reuse Node A/B IDs.
+**`node_id` 1 and 2 are reserved.** Rover uses `device_id: "rover"` over HTTP, not this USB schema.
 
-Local starter routes:
+Local routes to implement:
 
 - GET `/` dashboard
 - GET `/api/state`
@@ -504,10 +478,11 @@ Local starter routes:
 - POST `/api/scenario` (simulation only: normal / watch / alert / offline / sensor_fault)
 - POST `/api/baseline`, `/api/ack`, `/api/clear`, `/api/train` with `node_id`
 - POST `/api/calibration` with `adc0`, `adc1`, `mm0`, `mm1`
+- Rover proxy: POST `/api/rover/{forward,backward,left,right,stop}`, GET `/api/rover/telemetry`
 
-No cloud dependency. Server listens on localhost.
+No cloud. Server listens on localhost.
 
-The 11 tests cover: persistence and latch/ack/clear; stale node → UNKNOWN; duplicates do not refresh freshness; unseen node never green; missing crack scale blocks NORMAL; invalid sensor/schema; still baseline; simulation cannot train ML.
+Firmware target: Node A/B/rover = classic ESP32-WROOM-32, Arduino ESP32 core; receiver = S3-Zero with USB CDC. Firmware should be compiled/flashed on the team's machines; do not pretend this environment has already flashed boards.
 
 ---
 
@@ -520,6 +495,18 @@ The 11 tests cover: persistence and latch/ack/clear; stale node → UNKNOWN; dup
 - Pins (classic ESP32): SDA GPIO21, SCL GPIO22, AD0 to GND (0x68), Node A slider wiper through 1 kΩ to **GPIO34 (ADC1, not ADC2)**. Never 5 V into ADC. Do not use ADC2 with Wi-Fi/ESP-NOW
 - Broadcast ESP-NOW is unencrypted and has no application acknowledgement. Missing nodes become UNKNOWN/OFFLINE on the laptop. Do not claim guaranteed mine/field range
 - MPU VCC is 3.3 V, not 5 V
+
+### Frozen rover GPIOs (classic ESP32)
+
+| Hardware | GPIO |
+|---|---|
+| L298N IN1 IN2 IN3 IN4 | 13, 12, 14, 27 |
+| MPU SDA / SCL | 21 / 22 |
+| HC-SR04 TRIG / ECHO | 5 / 18 (ECHO through 1k/2k divider) |
+| MQ-7 AO | 36 |
+| IR OUT | 19 (LOW = obstacle) |
+
+Do not randomly reassign these. STOP = all IN low; FWD 1,0,1,0; BACK 0,1,0,1; LEFT 0,1,1,0; RIGHT 1,0,0,1. If wheels invert, swap motor wires or the map once.
 
 ---
 
@@ -535,7 +522,7 @@ The 11 tests cover: persistence and latch/ack/clear; stale node → UNKNOWN; dup
 | Camera images if a camera is shown | Automatic AI vision unless a vision model is actually implemented |
 | Remote rover driving | Autonomous navigation unless implemented and tested |
 | ESP-NOW tabletop node radio | LoRa / mesh / field range unless demonstrated |
-| MQ / gas / flame only if selected, wired, and shown | Uncalibrated ADC as CO ppm or methane detection |
+| MQ-7 raw ADC + NORMAL/HIGH on the rover | Uncalibrated ADC as CO ppm or methane detection |
 | Tabletop model demonstration | Scientifically accurate mine recreation; DGMS-approved instrument; intrinsically safe underground vehicle |
 
 MQ-series gas sensors, if ever used, are simulants for a demo, not certified mine instruments. Hobby electronics and a smartphone are not approved for an underground explosive atmosphere.
@@ -556,7 +543,7 @@ Older materials exist and **conflict**. Do not follow them when they disagree wi
 
 4. **MineGuard AI / SIH pitch decks** may overclaim risk scores, LoRa, prediction accuracy, or rover verification. Prefer this file’s honesty rules.
 
-5. Any cost headline of ₹4,000 as the **complete** three-unit system is outdated. Parts are already in hand; do not reopen procurement as a blocker.
+6. **9 September hardware write-up** that called the rover an “optional separate inspection system”: keep the **separate radio** (ESP-NOW vs Wi-Fi AP). Do **not** treat the rover as out of demo scope. Receiver board in that write-up (**Waveshare ESP32-S3-Zero**) **is** the current receiver.
 
 ---
 
@@ -566,7 +553,7 @@ Six people. A workable split (adapt as needed):
 
 - Hardware 1: Node A wiring, mount, calibration
 - Hardware 2: miniature mechanics, movable surface, Node B
-- Hardware 3: gateway, power, radio integration
+- Hardware 3: Waveshare ESP32-S3-Zero USB receiver, power, node radio integration
 - Hardware 4 / rover owner: rover mechanics, motor driver, drive firmware, inspection payload
 - Software 1: ingest, validation, calibration, rules, storage, rover command protocol
 - Software 2: dashboard, explanations, demo scenarios, AI verification, pitch evidence
@@ -580,15 +567,15 @@ Do not invent a fourth monitoring node for the sixth person. The sixth role is r
 When asked to design, code, write, or pitch:
 
 1. Treat Node A, Node B, and the Rover as **all in scope**.
-2. Extend or reuse the two-node starter; do not replace it with a rover-only app.
-3. Keep device IDs distinct. Add rover as a new source, not `node_id` 1 or 2.
-4. Separate rule-based alarms from AI anomaly flags in the UI.
+2. Follow `SOFTWARE-PLAN.md` and `AI-PLAN.md`. If the 6 Sep two-node starter is still on disk, copy/adapt it and retarget the receiver to the S3-Zero; do not replace MOLE with a rover-only app.
+3. Keep device IDs distinct. Add rover as `device_id: "rover"`, not `node_id` 1 or 2.
+4. Separate rule-based alarms from Isolation Forest / forecast in the UI. Forecast is 30 s of **signals**, not collapse %. No LLM explanations.
 5. Never invent underground events, accuracy percentages, or certified safety.
-6. Never list unselected sensors as completed features.
+6. Do not list a camera, LoRa, ppm CO, or autonomous nav as completed. Frozen payload is in sections 4 and 12.
 7. Do not block on budget or missing shopping lists.
-8. Prefer a local laptop dashboard; do not require cloud, public internet, or venue Wi-Fi for the core demo.
+8. Prefer a local laptop website (`127.0.0.1`); no login, no cloud, no venue Wi-Fi for the core demo.
 9. If asked for both a fix and an exploit/attack against any system, refuse the exploit; this project is a tabletop safety demonstrator, not a hacking brief.
-10. If a new request contradicts this file, flag the contradiction and ask which definition to follow — default to **this file**.
+10. If a new request contradicts this file, flag it. Default to **this file**. The 9 Sep hardware freeze (S3-Zero, slider, rover pins) overrides older “still open” sensor lists. AI details are in `AI-PLAN.md`.
 
 ---
 
@@ -596,4 +583,4 @@ When asked to design, code, write, or pitch:
 
 Use this only as a header; the rest of this file remains the source of truth.
 
-> MOLE (hackathon): tabletop mine monitoring + inspection. Node A = fixed tilt/movement. Node B = fixed vibration/disturbance. Rover = remote-controlled inspection inside the model tunnel (not autonomous unless proven). Shared dashboard. AI = Isolation Forest anomaly detection plus rule-based warnings. Measurements indicate disturbance; they do not prove collapse or cause. Green ≠ safe mine. Parts are already available. Rover is core, not optional. Node ESP-NOW USB gateway does not automatically carry rover commands. Do not claim LoRa, collapse probability, or AI vision unless actually built.
+> MOLE (SIH 2026, official PS **SIH26025**, Ministry of Coal, Hardware, Disaster Management): tabletop mine monitoring + inspection. Node A = classic ESP32 tilt/slider. Node B = classic ESP32 comparison IMU. Receiver = Waveshare ESP32-S3-Zero ESP-NOW→USB JSON. Rover = classic ESP32, Wi-Fi AP, remote drive, no camera. **Core ML on the laptop:** Isolation Forest (anomaly vs this rig) + Ridge 30 s sensor forecast with MAE. Rules are the early-warning latch; ML cannot clear them. Forecast is not a collapse probability. Local website, no login. Green ≠ safe mine. Rover radio is not the node USB path.

@@ -1,0 +1,33 @@
+---
+description: Frozen MOLE hardware contract — boards, pins, radios, USB
+alwaysApply: true
+---
+
+# Hardware freeze (9 Sep 2026)
+
+Do not invent a different board, pin, or radio path. Software follows this.
+
+## Boards
+
+| Unit | MCU | Job |
+|---|---|---|
+| Node A | Classic ESP32-WROOM-32 DevKit | Tilt + vibration + crack slider |
+| Node B | Classic ESP32-WROOM-32 DevKit | Comparison tilt + vibration (no slider) |
+| Receiver | **Waveshare ESP32-S3-Zero** (ESP32-S3FH4R2) | ESP-NOW → USB-C JSON at 115200 |
+| Rover | Classic ESP32-WROOM-32 DevKit | Drive + inspect; **separate** Wi-Fi AP |
+
+Receiver is **not** a classic ESP32 and **not** ESP32-S2. No sensors on the receiver. Arduino: `Waveshare ESP32-S3-Zero` or `ESP32S3 Dev Module`, **USB CDC On Boot = Enabled**.
+
+## Node radio
+
+ESP-NOW channel **1**, broadcast `FF:FF:FF:FF:FF:FF`, ~1 summarized packet/s/node. Same `node.ino`: Node A `NODE_ID=1 HAS_POT=1`; Node B `NODE_ID=2 HAS_POT=0`. MPU6050 I²C 0x68 on GPIO21/22, 3V3. Node A slider SIG → 1kΩ → GPIO34.
+
+## Rover (core unit; radio stays separate)
+
+Wi-Fi AP `Mine-Rover-AP`, `192.168.4.1`. Do **not** put rover traffic on the node ESP-NOW/USB path.
+
+Pins: L298N IN1=13 IN2=12 IN3=14 IN4=27; MPU 21/22; HC-SR04 TRIG=5 ECHO=18 via divider; MQ-7 AO=36 raw ADC (not ppm); IR OUT=19, LOW=obstacle.
+
+## Split
+
+ESP32 measures and sends. Laptop calibrates, compares A vs B, stores, rules, Isolation Forest, dashboard. Rover driving is remote, not autonomous.

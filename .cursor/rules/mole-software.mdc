@@ -1,0 +1,41 @@
+---
+description: MOLE firmware and laptop software contracts
+globs: firmware/**,software/**
+alwaysApply: false
+---
+
+# Software contracts
+
+## ESP-NOW binary packet (nodes → S3 receiver)
+
+```cpp
+struct SensorPacket {
+    uint8_t version;      // 1
+    uint8_t nodeId;       // 1 or 2
+    uint32_t sequence;
+    uint32_t uptimeMs;
+    float roll;
+    float pitch;
+    float vibration;
+    int16_t sliderRaw;    // Node B: -1
+    uint8_t flags;        // IMU=1, POT=2, VIB=4
+};
+```
+
+## USB JSON (receiver → laptop)
+
+One object per line, 115200. Keep `type`/`schema` so Python can reject junk:
+
+```json
+{"type":"telemetry","schema":1,"node_id":1,"seq":225,"uptime_ms":17000,"valid":7,"roll_deg":2.14,"pitch_deg":1.32,"vibration_g":0.07,"adc_raw":1764}
+```
+
+Node B: `node_id` 2, `valid` 5 when healthy, `adc_raw` null. Invalid fields are `null`. Receiver may add `gateway_ms`. Never reuse 1/2 for the rover.
+
+## Laptop owns
+
+Fresh/stale, delta tilt, mm from ADC, NORMAL/WATCH/ALERT/UNKNOWN, Isolation Forest, Ridge 30 s **signal** forecast, template explanations, SQLite, UI. Rules never cleared by AI. Simulate mode labelled SIMULATED; live never silently simulates. Forecast UI must say it is not a collapse prediction.
+
+## Rover HTTP
+
+`/forward /backward /left /right /stop /telemetry` on the rover AP. Dashboard proxies through the laptop. MQ-7 is raw + NORMAL/HIGH, not ppm. No camera. Rover samples never enter node Isolation Forest.
