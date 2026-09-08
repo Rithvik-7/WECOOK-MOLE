@@ -1,0 +1,33 @@
+---
+description: Locked MOLE project definition for all work in this repo
+alwaysApply: true
+---
+
+# MOLE
+
+MOLE is one mine-monitoring and inspection project: **Node A + Node B + Rover + AI + one dashboard**. All three hardware units are in the hackathon build. The rover is not optional and not a future add-on.
+
+Help a mine safety officer **notice concerning changes, understand the evidence, and inspect remotely** on a tabletop model. Measurements can indicate disturbance. They do **not** prove a collapse or name its cause.
+
+## Units
+
+- **Node A (fixed):** surface tilt / movement. MPU6050 orientation vs a captured baseline. Optional physically linked crack slider only if the team keeps it.
+- **Node B (fixed):** vibration / disturbance at another surface location. Same sensor family is fine; placement and purpose differ. Not a surveyed geodetic reference.
+- **Rover (mobile):** remote FWD / REV / LEFT / RIGHT / STOP inside the model tunnel. Inspects after an operator decision. Does not replace either node. Driving is not autonomous unless separately proven.
+- **USB receiver ESP32:** radio/serial infrastructure, not a fourth monitoring node.
+- **AI:** Isolation Forest anomaly detection is the real AI. Rules handle thresholds. Never claim collapse probability or a demonstrated subsidence forecast.
+- **Dashboard:** one UI for nodes and rover. Every reading is source-tagged and timed. Rover vibration is never treated as Node B. Green means healthy data, not a certified-safe mine.
+
+Workflow: nodes detect → AI/rules analyse → dashboard explains → operator inspects → rover reports back.
+
+## Hardware reality
+
+The team already has the parts for nodes, rover, and supporting gear (borrowed / jugaad). **Do not block on budget, BOM, or the old ₹4,000 node-only figure.** Owning a part still does not mean it is a promised feature until it is selected, wired, and shown.
+
+## Do not assume
+
+Exact final rover payload, whether the crack slider stays, the rover radio path, camera-as-AI-vision, LoRa, or autonomous navigation. The node ESP-NOW USB gateway does not automatically carry rover commands or video. The existing starter covers two nodes + simulated dashboard (11 tests); rover software still has to be added.
+
+## Pitch order
+
+Lead with continuous monitoring and evidence. Then drive the rover because a warning appeared. Do not pitch MOLE as a gas-car maze robot.
