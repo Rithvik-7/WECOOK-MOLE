@@ -38,16 +38,16 @@ Teammates and coding agents: start at **[AGENTS.md](AGENTS.md)** (pins, packet f
 
 ## Team
 
-**WE COOK** · CMR Institute of Technology (**CMRIT**) · six members, all **2nd year**.
+**WE COOK** · CMR Institute of Technology (**CMRIT**) · **ISE**, all **2nd year**.
 
 | Name | Dept | On this project |
 |---|---|---|
-| **Rithvik** | ISE | **Team leader** — coordination, research, AI/ML, PPTs, Python website (front and back) |
-| **Komala TG** | IE | **Core coordinator** — research, PPT, basic AI/ML, website backend |
-| **Venkatesh** | EC | **Electronics lead** — hardware planning and build |
-| **Devika** | EC | **Electronics lead** — hardware planning and build |
-| **Pragati Karvi** | IC | Website front and back, PPT, demo |
-| **Pallavi Samantha** | IC | Research, website design, basic electronics |
+| **Rithvik** | ISE | **Team leader** — coordination, research, AI/ML, PPTs, Python frontend and backend |
+| **Komala TG** | ISE | Shared AI/ML, backend, research, PPT |
+| **Venkatesh** | ISE | Ordered and managed all electronics; also backend |
+| **Devika** | ISE | Ordered and managed all electronics; also backend |
+| **Pragati Karvi** | ISE | Frontend, backend, PPT, demo |
+| **Pallavi Samantha** | ISE | Research, website design, basic electronics |
 
 Full roster: [docs/TEAM.md](docs/TEAM.md). The SIH **6-slide idea PPT** does not include names (official template).
 

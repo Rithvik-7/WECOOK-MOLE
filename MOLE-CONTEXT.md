@@ -7,7 +7,7 @@
 **Official PS ID:** **SIH26025** (Ministry of Coal · Hardware · Disaster Management)  
 **PS title:** Development of an AI-enabled Low Cost Real Time Mine Subsidence Monitoring, Prediction and Early Warning System for Underground Coal Mines in India  
 **Team size:** 6 (team name: WE COOK) · **CMRIT** (CMR Institute of Technology), not CMIT  
-**Roster:** Rithvik (leader, ISE); Komala TG (IE); Venkatesh, Devika (EC, electronics leads); Pragati Karvi, Pallavi Samantha (IC). All 2nd year, CMRIT. See `docs/TEAM.md`.  
+**Roster:** Rithvik (leader); Komala TG (shared AI/ML, backend, research, PPT); Venkatesh, Devika (ordered and managed all electronics, also backend); Pragati Karvi (frontend, backend, PPT, demo); Pallavi Samantha (research, website, basic electronics). All 2nd year **ISE**, **CMRIT**. See `docs/TEAM.md`.  
 **Build type:** Hackathon hardware + **laptop ML** + software demonstration on a tabletop model mine  
 **Parts status:** The team already has the components for Node A, Node B, the rover, and supporting gear (borrowed / jugaad). Do **not** block on budget, shopping lists, or the old ₹4,000 node-only figure.
 
@@ -552,12 +552,12 @@ Older materials exist and **conflict**. Do not follow them when they disagree wi
 
 Six people at **CMR Institute of Technology (CMRIT)** — team **WE COOK**. Roster: `docs/TEAM.md`.
 
-- **Rithvik** (ISE, 2nd year, team leader): coordination, research, AI/ML, PPTs, Python website
-- **Komala TG** (IE, 2nd year): core coordinator, research, PPT, basic AI/ML, website backend
-- **Venkatesh** (EC, 2nd year): electronics lead — hardware planning and build
-- **Devika** (EC, 2nd year): electronics lead — hardware planning and build
-- **Pragati Karvi** (IC, 2nd year): website frontend/backend, PPT, demo
-- **Pallavi Samantha** (IC, 2nd year): research, website design, basic electronics support
+- **Rithvik** (ISE, 2nd year, team leader): coordination, research, AI/ML, PPTs, Python frontend and backend
+- **Komala TG** (ISE, 2nd year): shared AI/ML, backend, research, PPT
+- **Venkatesh** (ISE, 2nd year): ordered and managed all electronics; also backend
+- **Devika** (ISE, 2nd year): ordered and managed all electronics; also backend
+- **Pragati Karvi** (ISE, 2nd year): frontend, backend, PPT, demo
+- **Pallavi Samantha** (ISE, 2nd year): research, website design, basic electronics support
 
 Do not invent a fourth monitoring node. The rover stays one of the three hardware units. College name is **CMRIT**, not CMIT.
 
