@@ -15,7 +15,15 @@ class SerialReader:
         self._ser: Optional[serial.Serial] = None
 
     def open(self) -> None:
-        self._ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
+        # Do not toggle DTR/RTS: that resets ESP32-S3 USB-Serial/JTAG and wedges COM.
+        ser = serial.Serial()
+        ser.port = self.port
+        ser.baudrate = self.baud
+        ser.timeout = self.timeout
+        ser.dtr = False
+        ser.rts = False
+        ser.open()
+        self._ser = ser
 
     def close(self) -> None:
         if self._ser is not None:

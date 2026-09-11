@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import threading
 import time
@@ -8,7 +9,7 @@ from pathlib import Path
 
 from typing import Optional, Tuple
 
-from flask import Flask, Response, jsonify, request, send_from_directory
+from flask import Flask, Response, jsonify, request, send_from_directory, stream_with_context
 
 ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
@@ -16,6 +17,16 @@ if str(ROOT) not in sys.path:
 
 from database import Database
 from engine import Engine
+from helper import (
+    _clean_history,
+    _hard_warning,
+    _llm_overclaim,
+    _mood,
+    answer_question,
+    helper_status,
+    iter_llm,
+    llm_enabled,
+)
 from rover_client import RoverClient
 from rover_sense import explain_ir
 from serial_reader import SerialReader, resolve_port
@@ -156,6 +167,11 @@ def create_app(
         ok = detail == "Latched alert cleared."
         return jsonify({"ok": ok, "detail": detail}), (200 if ok else 409)
 
+    @app.post("/api/inspection-done")
+    def inspection_done():
+        ok, detail = engine.inspection_done()
+        return jsonify({"ok": ok, "detail": detail}), (200 if ok else 409)
+
     @app.post("/api/train")
     def train():
         node_id = _node_id(request.get_json(silent=True))
@@ -199,6 +215,68 @@ def create_app(
             )
             last_rover_command = cmd
         return jsonify(result), (200 if result.get("ok") else 503)
+
+    @app.post("/api/helper")
+    def helper_chat():
+        body = request.get_json(silent=True) or {}
+        question = body.get("question", body.get("q", ""))
+        if not isinstance(question, str):
+            question = "" if question is None else str(question)
+        history = body.get("history")
+        if body.get("stream"):
+            snap = engine.snapshot()
+
+            def generate():
+                def pack(obj: dict) -> str:
+                    return f"data: {json.dumps(obj)}\n\n"
+
+                acc: list[str] = []
+                model = None
+                provider = None
+                try:
+                    yield pack({"ready": True})
+                    known = answer_question(question, snap, history=history, allow_llm=False)
+                    honesty = known.get("topic") == "warning" or (known.get("warn") and known.get("topic") != "unknown")
+                    if honesty or not llm_enabled():
+                        yield pack({
+                            "delta": known["answer"],
+                            "done": True,
+                            "warn": known["warn"],
+                            "mood": known["mood"],
+                            "model": known.get("model"),
+                            "llm": False,
+                        })
+                        return
+                    for event in iter_llm(question, snap, _clean_history(history)):
+                        if event.get("provider"):
+                            provider = event["provider"]
+                        if event.get("model"):
+                            model = event["model"]
+                            yield pack({"model": model, "provider": provider})
+                        if event.get("delta"):
+                            acc.append(event["delta"])
+                            yield pack({"delta": event["delta"]})
+                        if event.get("error"):
+                            fallback = answer_question(question, snap, history=history, allow_llm=False)
+                            yield pack({"delta": fallback["answer"], "done": True, "llm": False, "warn": fallback["warn"], "mood": fallback["mood"], "model": None})
+                            return
+                    text = "".join(acc).strip()
+                    warn = bool(_hard_warning(question) or _llm_overclaim(text))
+                    yield pack({"done": True, "llm": True, "warn": warn, "mood": "alert" if warn else _mood(snap, False), "model": model, "provider": provider})
+                except Exception:
+                    fallback = answer_question(question, snap, history=history, allow_llm=False)
+                    yield pack({"delta": fallback["answer"], "done": True, "llm": False, "warn": fallback["warn"], "mood": fallback["mood"], "model": None})
+
+            return Response(
+                stream_with_context(generate()),
+                mimetype="text/event-stream",
+                headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+            )
+        return jsonify(answer_question(question, engine.snapshot(), history=history))
+
+    @app.get("/api/helper/status")
+    def helper_ready():
+        return jsonify(helper_status())
 
     @app.get("/api/rover/state")
     def rover_state():

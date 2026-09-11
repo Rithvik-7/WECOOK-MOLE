@@ -16,8 +16,12 @@ function nodeCard(node) {
   const letter = node.node_id === 1 ? "A" : "B";
   const tiltHot = Number(node.tilt_change_deg) >= 3;
   const gapHot = Number(node.relative_mm) >= 2;
+  const gapText = node.relative_mm == null
+    ? (node.adc_raw == null ? "no ADC yet" : "save slider cal")
+    : `${fmt(node.relative_mm)} mm`;
   const calibration = node.node_id === 1
-    ? `<div class="metric${gapHot ? " hot" : ""}"><span>Crack gap</span><strong>${fmt(node.relative_mm)} mm</strong></div>`
+    ? `<div class="metric${gapHot ? " hot" : ""}"><span>Crack gap</span><strong>${gapText}</strong></div>
+        <div class="metric"><span>Slider ADC</span><strong>${node.adc_raw == null ? "—" : node.adc_raw}</strong></div>`
     : `<div class="metric"><span>Role</span><strong>Compare</strong></div>`;
   const latch = node.latched_alert ? badge("ALERT", node.acked ? "Alert acknowledged" : "Alert latched") : "";
   const baseline = node.baseline ? "Baseline captured" : "Baseline not captured";
@@ -172,14 +176,25 @@ function renderWorkflow(status) {
     item.classList.toggle("current", inspect ? step === "inspect" : step === "monitor");
   });
   const cta = $("inspectCta");
-  if (cta) cta.hidden = status !== "ALERT";
+  if (cta) {
+    cta.hidden = !inspect;
+    const title = $("inspectCtaTitle");
+    const text = $("inspectCtaText");
+    if (status === "WATCH") {
+      if (title) title.textContent = "WATCH is on.";
+      if (text) text.textContent = "Rules fired first. Review the evidence, inspect with the rover if needed, then click Inspection done. IR will not auto-brake.";
+    } else {
+      if (title) title.textContent = "A warning is latched.";
+      if (text) text.textContent = "Inspect with the rover, then click Inspection done on this page. That closes a recovered latch on both nodes. History stays.";
+    }
+  }
 }
 
 function currentChart() {
   if (!state || document.hidden) return;
   const a = state.nodes["1"].history || [];
   const b = state.nodes["2"].history || [];
-  const key = `${chartMetric}:${state.nodes["1"].seq}:${state.nodes["2"].seq}:${state.forecast["1"].tilt?.points?.at(-1)}`;
+  const key = `${chartMetric}:${state.nodes["1"].seq}:${state.nodes["2"].seq}:${state.calibration?.adc0}:${state.nodes["1"].relative_mm}:${state.forecast["1"].tilt?.points?.at(-1)}`;
   if (key === lastChartKey) return;
   lastChartKey = key;
   let seriesKey, unit, watch, alert, fa, fb;
@@ -231,13 +246,17 @@ function render(next) {
   const badgeNode = $("systemBadge");
   badgeNode.className = `badge ${state.system_status}`;
   badgeNode.textContent = state.system_status;
+  const freshNodes = Object.values(state.nodes).filter((n) => n.seen && n.age_s !== null && n.age_s <= 5).length;
+  const action = state.next_action || "";
   $("systemTitle").textContent = state.system_status === "NORMAL" ? "Healthy data" :
     state.system_status === "WATCH" ? "Attention needed" :
-    state.system_status === "ALERT" ? "Inspection recommended" : "Data unavailable";
+    state.system_status === "ALERT" ? "Inspection recommended" :
+    action.includes("Baseline") ? "Live — capture baselines" :
+    action.includes("Slider") ? "Live — calibrate slider" :
+    freshNodes > 0 ? "One node stale" : "Data unavailable";
   $("nextAction").className = `next-action ${state.system_status}`;
   $("nextActionText").textContent = state.next_action;
 
-  const freshNodes = Object.values(state.nodes).filter((n) => n.seen && n.age_s !== null && n.age_s <= 5).length;
   $("receiverState").textContent = state.simulated
     ? "Simulated"
     : !state.serial_connected ? "USB reconnecting" : `${freshNodes} / 2 fresh`;
@@ -362,6 +381,41 @@ $("calibrationForm").addEventListener("submit", async (event) => {
   } catch (error) {
     toast(error.message, true);
   }
+});
+
+function fillLiveAdc(field) {
+  const adc = state?.nodes?.["1"]?.adc_raw;
+  if (adc == null) {
+    toast("No Node A slider ADC yet. Keep Node A powered near the receiver and twist the pot.", true);
+    return;
+  }
+  const form = $("calibrationForm");
+  if (form?.elements[field]) form.elements[field].value = adc;
+  toast(`Copied live ADC ${adc} into ${field === "adc0" ? "point 1" : "point 2"}.`);
+}
+
+$("useLiveAdc0")?.addEventListener("click", () => fillLiveAdc("adc0"));
+$("useLiveAdc1")?.addEventListener("click", () => fillLiveAdc("adc1"));
+
+async function markInspectionDone(button) {
+  if (button) button.disabled = true;
+  try {
+    const result = await postJson("/api/inspection-done", {});
+    toast(result.detail || "Inspection done.");
+    await poll();
+  } catch (error) {
+    toast(error.message, true);
+    await poll();
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+$("inspectionDone")?.addEventListener("click", (event) => {
+  markInspectionDone(event.currentTarget);
+});
+$("inspectionDoneSidebar")?.addEventListener("click", (event) => {
+  markInspectionDone(event.currentTarget);
 });
 
 window.addEventListener("resize", currentChart);

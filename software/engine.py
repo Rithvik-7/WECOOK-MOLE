@@ -120,6 +120,9 @@ class Engine:
             self.cal = {"adc0": float(adc0), "adc1": float(adc1), "mm0": float(mm0), "mm1": float(mm1)}
             if self.mode == "live":
                 self.db.set_setting("calibration", self.cal)
+            n = self.nodes[1]
+            if n.last is not None and n.last.adc_raw is not None:
+                n.mm = relative_mm(n.last.adc_raw, self.cal["adc0"], self.cal["adc1"], self.cal["mm0"], self.cal["mm1"])
             self.anomaly[1].reset()
             self.joint.reset()
             self.db.log_event(time.time(), self.mode, 1, "calibration", "Slider millimetre scale set; AI reset.")
@@ -159,6 +162,54 @@ class Engine:
             n.clear_normal = 0
             self.db.log_event(time.time(), self.mode, node_id, "clear", "Latched alert cleared after recovery.")
             return "Latched alert cleared."
+
+    def inspection_done(self) -> tuple[bool, str]:
+        """Operator finished rover inspection. Closes recovered ALERT latches on A and B.
+
+        Live ALERT stays ALERT. History is kept. ML cannot call this.
+        """
+        with self.lock:
+            letters = {1: "A", 2: "B"}
+            cleared: list[str] = []
+            still_alert: list[str] = []
+            any_latch = False
+            for nid, n in self.nodes.items():
+                if not n.latched_alert:
+                    continue
+                any_latch = True
+                n.acked = True
+                if n.status == STATUS_ALERT:
+                    still_alert.append(letters[nid])
+                    continue
+                n.latched_alert = False
+                n.acked = False
+                n.clear_normal = 0
+                cleared.append(letters[nid])
+            if still_alert:
+                names = " and ".join(f"Node {name}" for name in still_alert)
+                verb = "are" if len(still_alert) > 1 else "is"
+                detail = (
+                    f"Inspection recorded. History kept. {names} {verb} still over the "
+                    "tabletop ALERT threshold — recover the mount, then click Inspection done again."
+                )
+            elif cleared:
+                names = " and ".join(f"Node {name}" for name in cleared)
+                detail = (
+                    f"Inspection done. Latched alert closed on {names}. "
+                    "The event stays in history. This is not a mine-safety certification."
+                )
+            elif not any_latch:
+                detail = "Inspection recorded. No latched alert to close."
+            else:
+                detail = "Inspection recorded. History kept."
+            self.db.log_event(
+                time.time(),
+                self.mode,
+                None,
+                "inspection_done",
+                detail,
+            )
+            return (not still_alert), detail
 
     def train(self, node_id: int) -> tuple[bool, str]:
         with self.lock:
@@ -223,7 +274,7 @@ class Engine:
             tchg = tilt_change(pkt.roll_deg, pkt.pitch_deg, 0.0, 0.0)
         n.tilt = tchg
         mm = None
-        if pkt.node_id == 1 and pkt.pot_ok:
+        if pkt.node_id == 1 and pkt.adc_raw is not None:
             mm = relative_mm(pkt.adc_raw, self.cal["adc0"], self.cal["adc1"], self.cal["mm0"], self.cal["mm1"])
         n.mm = mm
         d_tilt = None if tchg is None or n.last_tilt is None else tchg - n.last_tilt
@@ -451,12 +502,26 @@ class Engine:
                 forecast_note=forecasts["1"]["tilt"].get("reason") or "",
             )
             statuses = [node.status for node in self.nodes.values()]
-            if STATUS_ALERT in statuses or any(n.latched_alert for n in self.nodes.values()):
+            latched = [n for n in self.nodes.values() if n.latched_alert]
+            if STATUS_ALERT in statuses or latched:
                 system_status = STATUS_ALERT
-                next_action = "Review evidence, acknowledge the alert, then open Rover Inspection."
+                recovered_latch = latched and all(n.status != STATUS_ALERT for n in latched)
+                if recovered_latch:
+                    next_action = "Rover inspection can finish the loop. Click Inspection done to close the latched alert. History stays."
+                else:
+                    next_action = "Review evidence, inspect with the rover, then click Inspection done."
             elif STATUS_UNKNOWN in statuses:
                 system_status = STATUS_UNKNOWN
-                next_action = "Restore fresh, valid node data before interpreting conditions."
+                a_stale = freshness(now, self.nodes[1].last.received_at if self.nodes[1].last else None) == STATUS_UNKNOWN
+                b_stale = freshness(now, self.nodes[2].last.received_at if self.nodes[2].last else None) == STATUS_UNKNOWN
+                if a_stale or b_stale:
+                    next_action = "Restore fresh, valid node data before interpreting conditions. Close Serial Monitor; keep the S3 receiver on USB."
+                elif self.nodes[1].roll0 is None or self.nodes[2].roll0 is None:
+                    next_action = "Nodes are live. Keep mounts still, then click Baseline A and Baseline B."
+                elif not self.crack_calibrated():
+                    next_action = "Baseline is set. Open Slider two-point calibration and save two ADC/mm points."
+                else:
+                    next_action = "Restore fresh, valid node data before interpreting conditions."
             elif STATUS_WATCH in statuses:
                 system_status = STATUS_WATCH
                 next_action = "Watch the trend. Prepare rover inspection if the change persists."

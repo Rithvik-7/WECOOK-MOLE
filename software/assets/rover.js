@@ -182,6 +182,8 @@ document.querySelectorAll("[data-drive]").forEach((button) => {
 
 document.addEventListener("keydown", (event) => {
   if (event.target instanceof HTMLInputElement) return;
+  if (event.target instanceof HTMLTextAreaElement) return;
+  if (event.target.closest?.("#moleHelper")) return;
   if (event.code === "Space") {
     event.preventDefault();
     stopDrive();
@@ -195,6 +197,9 @@ document.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("keyup", (event) => {
+  if (event.target instanceof HTMLInputElement) return;
+  if (event.target instanceof HTMLTextAreaElement) return;
+  if (event.target.closest?.("#moleHelper")) return;
   if (keys[event.key]) {
     event.preventDefault();
     stopDrive(true);
@@ -207,6 +212,20 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("beforeunload", () => {
   navigator.sendBeacon("/api/rover/stop");
+});
+
+$("inspectionDone")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    await stopDrive(true);
+    const result = await postJson("/api/inspection-done", {});
+    toast(result.detail || "Inspection done.");
+    window.location.href = "/monitoring";
+  } catch (error) {
+    toast(error.message, true);
+    button.disabled = false;
+  }
 });
 
 poll();

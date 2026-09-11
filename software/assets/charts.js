@@ -16,7 +16,7 @@ function usable(values) {
 function path(ctx, points, x, y, color, dashed = false) {
   ctx.save();
   ctx.strokeStyle = color;
-  ctx.lineWidth = dashed ? 2 : 2.6;
+    ctx.lineWidth = dashed ? 2.2 : 3;
   ctx.setLineDash(dashed ? [7, 5] : []);
   ctx.beginPath();
   let started = false;
@@ -86,9 +86,10 @@ export function drawForecastChart(canvas, {
     ...(forecastB?.lower || []), ...(forecastB?.upper || []),
     watch, alert,
   ]);
-  let min = all.length ? Math.min(...all) : 0;
+    let min = all.length ? Math.min(...all) : 0;
   let max = all.length ? Math.max(...all) : 1;
   min = Math.min(0, min);
+  if (alert != null && Number.isFinite(alert)) max = Math.max(max, Number(alert) * 1.35);
   if (max - min < 0.001) max = min + 1;
   const pad = (max - min) * 0.08;
   max += pad;
@@ -96,7 +97,7 @@ export function drawForecastChart(canvas, {
   const x = (i) => left + (plotW * i) / Math.max(totalN - 1, 1);
   const y = (v) => top + plotH - (plotH * (v - min)) / (max - min);
 
-  ctx.font = "11px Segoe UI, sans-serif";
+  ctx.font = "12px Segoe UI, sans-serif";
   ctx.textBaseline = "middle";
   ctx.strokeStyle = COLORS.grid;
   ctx.fillStyle = COLORS.text;

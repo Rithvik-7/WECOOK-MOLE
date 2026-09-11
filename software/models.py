@@ -37,7 +37,9 @@ class Telemetry:
 
     @property
     def pot_ok(self) -> bool:
-        return bool(self.valid & FLAG_POT) and self.adc_raw is not None
+        if self.node_id != 1:
+            return False
+        return self.adc_raw is not None
 
 
 @dataclass

@@ -13,6 +13,7 @@ from database import Database
 from engine import Engine
 from models import parse_telemetry
 from rules import STATUS_ALERT, STATUS_NORMAL, STATUS_UNKNOWN, STATUS_WATCH
+from app import create_app
 
 
 def engine_sim(tmp_path: Path) -> Engine:
@@ -100,6 +101,36 @@ def test_watch_and_alert_latch_ack_clear(tmp_path):
     assert n.latched_alert is False
 
 
+def test_node_a_adc_without_pot_flag_still_scales(tmp_path):
+    eng = engine_live(tmp_path)
+    eng.set_calibration(100, 2100, 0, 10)
+    t0 = 6_000_000.0
+    eng.ingest_obj(pkt(1, 1, roll=0.2, adc=1100, valid=5), received_at=t0)
+    snap = eng.snapshot(now=t0 + 0.2)
+    assert snap["nodes"]["1"]["adc_raw"] == 1100
+    assert snap["nodes"]["1"]["relative_mm"] == 5.0
+
+
+def test_set_calibration_updates_last_gap(tmp_path):
+    eng = engine_live(tmp_path)
+    t0 = 6_100_000.0
+    eng.ingest_obj(pkt(1, 1, roll=0.2, adc=3376, valid=7), received_at=t0)
+    eng.set_calibration(3376, 2759, 0, 10)
+    snap = eng.snapshot(now=t0 + 0.2)
+    assert snap["calibration"]["slider_ready"] is True
+    assert snap["nodes"]["1"]["relative_mm"] == 0.0
+
+
+def test_next_action_asks_for_baseline_when_fresh(tmp_path):
+    eng = engine_live(tmp_path)
+    t0 = 5_500_000.0
+    eng.ingest_obj(pkt(1, 1, roll=0.2), received_at=t0)
+    eng.ingest_obj(pkt(2, 1, roll=0.1), received_at=t0)
+    snap = eng.snapshot(now=t0 + 0.4)
+    assert snap["system_status"] == STATUS_UNKNOWN
+    assert "Baseline" in snap["next_action"]
+
+
 def test_stale_unknown(tmp_path):
     eng = engine_sim(tmp_path)
     t0 = 4_000_000.0
@@ -131,6 +162,50 @@ def test_sensor_fault_not_normal(tmp_path):
     for i in range(4):
         eng.ingest_obj(pkt(1, i + 1, roll=None, pitch=None, vib=None, adc=None, valid=0), received_at=t0 + i)
     assert eng.nodes[1].status == STATUS_UNKNOWN
+
+
+def test_inspection_done_closes_recovered_latches(tmp_path):
+    eng = engine_sim(tmp_path)
+    t0 = 3_100_000.0
+    for i in range(4):
+        eng.ingest_obj(pkt(1, i + 1, roll=7.0), received_at=t0 + i)
+        eng.ingest_obj(pkt(2, i + 1, roll=7.0), received_at=t0 + i)
+    assert eng.nodes[1].latched_alert is True
+    assert eng.nodes[2].latched_alert is True
+    ok, msg = eng.inspection_done()
+    assert ok is False
+    assert "threshold" in msg.lower()
+    assert eng.nodes[1].latched_alert is True
+    for i in range(4, 10):
+        eng.ingest_obj(pkt(1, i + 1, roll=0.1), received_at=t0 + i)
+        eng.ingest_obj(pkt(2, i + 1, roll=0.1), received_at=t0 + i)
+    assert eng.nodes[1].status == STATUS_NORMAL
+    assert eng.nodes[1].latched_alert is True
+    ok, msg = eng.inspection_done()
+    assert ok is True
+    assert "closed" in msg.lower()
+    assert eng.nodes[1].latched_alert is False
+    assert eng.nodes[2].latched_alert is False
+    snap = eng.snapshot(now=t0 + 10)
+    assert snap["system_status"] == STATUS_NORMAL
+
+
+def test_inspection_done_api_clears_both_nodes(tmp_path):
+    app, eng = create_app("simulate", db_path=tmp_path / "web.db")
+    t0 = 3_200_000.0
+    for i in range(4):
+        eng.ingest_obj(pkt(1, i + 1, roll=7.0), received_at=t0 + i)
+        eng.ingest_obj(pkt(2, i + 1, roll=7.0), received_at=t0 + i)
+    for i in range(4, 10):
+        eng.ingest_obj(pkt(1, i + 1, roll=0.1), received_at=t0 + i)
+        eng.ingest_obj(pkt(2, i + 1, roll=0.1), received_at=t0 + i)
+    client = app.test_client()
+    response = client.post("/api/inspection-done", json={})
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["ok"] is True
+    assert eng.nodes[1].latched_alert is False
+    assert eng.nodes[2].latched_alert is False
 
 
 def test_node_b_does_not_clear_node_a(tmp_path):

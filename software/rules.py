@@ -33,7 +33,7 @@ def sample_level(tilt: Optional[float], mm: Optional[float], *, node_id: int,
     if node_id == 1 and not crack_calibrated:
         return STATUS_UNKNOWN
     t = tilt if tilt is not None else 0.0
-    m = 0.0 if mm is None else mm
+    m = 0.0 if mm is None else abs(mm)
     if node_id != 1:
         m = 0.0
     if t >= ALERT_TILT_DEG or m >= ALERT_MM:
@@ -54,7 +54,7 @@ def reason_text(*, node_id: int, status: str, tilt: Optional[float], mm: Optiona
     if node_id == 1 and not crack_calibrated:
         return "Node A slider is not millimetre-calibrated. Cannot show NORMAL."
     t = 0.0 if tilt is None else tilt
-    m = 0.0 if mm is None else mm
+    m = 0.0 if mm is None else abs(mm)
     if status == STATUS_ALERT:
         bits = []
         if t >= ALERT_TILT_DEG:

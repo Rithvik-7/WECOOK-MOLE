@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="MOLE local mine-monitoring tabletop dashboard">
   <title>MOLE · Monitoring</title>
-  <link rel="stylesheet" href="/assets/ui.css">
+  <link rel="stylesheet" href="/assets/ui.css?v=ui3">
 </head>
 <body>
   <nav class="topbar" aria-label="Primary navigation">
@@ -22,11 +22,12 @@
   <main class="page">
     <header class="page-header">
       <div>
-        <p class="eyebrow">Tabletop monitoring</p>
-        <h1>Node A and Node B</h1>
+        <p class="eyebrow">SIH26025 · Tabletop monitoring</p>
+        <h1>Node A &amp; Node B</h1>
         <p class="lede">
+          Watch both mounts, read the evidence, then inspect with the rover.
           Rules latch a warning. sklearn scores unusual combinations and forecasts
-          the next 30 seconds of these same signals. The rover is on its own page.
+          the next 30 seconds of these same signals.
         </p>
       </div>
       <div class="row">
@@ -73,10 +74,13 @@
 
     <section id="inspectCta" class="inspect-cta" hidden>
       <div>
-        <strong>A warning is latched.</strong>
-        <p>Review the evidence below, then open the separate rover page so driving is not mixed with charts.</p>
+        <strong id="inspectCtaTitle">A warning is latched.</strong>
+        <p id="inspectCtaText">Review the evidence below, then open the separate rover page so driving is not mixed with charts.</p>
       </div>
-      <a class="button primary" href="/rover">Open Rover Inspection</a>
+      <div class="cta-actions">
+        <a class="button" href="/rover">Open Rover Inspection</a>
+        <button class="button primary" type="button" id="inspectionDone">Inspection done</button>
+      </div>
     </section>
 
     <section class="rehearsal" id="rehearsalBar">
@@ -102,7 +106,7 @@
         <section class="card">
           <div class="card-head">
             <div>
-              <h2>Measured signals and 30 s prediction</h2>
+              <h2>Measured signals &amp; 30 s forecast</h2>
               <p class="micro" style="margin-top:4px">Solid = measured · dashed = Ridge forecast · shaded = holdout error band</p>
             </div>
             <div class="tabs" role="tablist" aria-label="Signal chart">
@@ -127,7 +131,7 @@
         <section class="card">
           <div class="card-head">
             <div>
-              <h2>AI prediction table</h2>
+              <h2>sklearn prediction table</h2>
               <p class="micro" style="margin-top:4px">Holdout-selected sklearn forecast of these same signals. It is not a collapse probability.</p>
             </div>
           </div>
@@ -214,7 +218,10 @@
             </div>
             <div>
               <h3>3 · Handle a warning</h3>
-              <p class="micro" style="margin-top:4px">Ack records awareness. Clear needs three recovered NORMAL samples.</p>
+              <p class="micro" style="margin-top:4px">After rover inspection, mark Inspection done. That closes a recovered latch on both nodes. History stays. ML cannot do this.</p>
+              <div class="row" style="margin-top:10px">
+                <button class="button primary small" type="button" id="inspectionDoneSidebar">Inspection done</button>
+              </div>
               <div class="row" style="margin-top:10px">
                 <button class="button small" data-action="ack" data-node="1">Ack A</button>
                 <button class="button small" data-action="clear" data-node="1">Clear A</button>
@@ -223,15 +230,17 @@
               </div>
             </div>
           </div>
-          <details>
+          <details open>
             <summary>Slider two-point calibration</summary>
             <div>
-              <p class="micro">Record ADC at two ruler-measured positions. Saved for live mode.</p>
+              <p class="micro">This is a 60 mm 10 kΩ linear fader. Zero at the rest position, then a second point ~10 mm away. Use live ADC, type millimetres, save.</p>
               <form id="calibrationForm" class="form-grid" style="margin-top:10px">
                 <label>ADC point 1<input name="adc0" type="number" required></label>
-                <label>mm point 1<input name="mm0" type="number" step="0.1" required></label>
+                <label>mm point 1<input name="mm0" type="number" step="0.1" value="0" required></label>
                 <label>ADC point 2<input name="adc1" type="number" required></label>
-                <label>mm point 2<input name="mm1" type="number" step="0.1" required></label>
+                <label>mm point 2<input name="mm1" type="number" step="0.1" value="10" required></label>
+                <button class="button small" type="button" id="useLiveAdc0">Use live ADC as point 1</button>
+                <button class="button small" type="button" id="useLiveAdc1">Use live ADC as point 2</button>
                 <button class="button" type="submit">Save calibration</button>
               </form>
             </div>
@@ -266,6 +275,7 @@
     </div>
   </main>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="/assets/monitoring.js"></script>
+  <script type="module" src="/assets/monitoring.js?v=ui3"></script>
+  <script type="module" src="/assets/helper.js?v=ui3"></script>
 </body>
 </html>

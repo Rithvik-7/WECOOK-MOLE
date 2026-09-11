@@ -200,10 +200,7 @@ void loop() {
   if (HAS_POT) {
     int raw = analogRead(POT_PIN);
     slider = (int16_t)raw;
-    // Usable interior travel roughly 100–3900 on 12-bit / 11 dB
-    if (raw >= 100 && raw <= 3900) {
-      flags |= 0x02;
-    }
+    flags |= 0x02;  // always report ADC so the laptop can calibrate
   }
 
   SensorPacket pkt;

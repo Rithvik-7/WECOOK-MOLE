@@ -234,10 +234,81 @@ def test_monitoring_shows_prediction_and_node_b_actions(tmp_path):
     assert b'data-action="clear" data-node="2"' in html
     assert b"Drive controls" not in html
     assert b"AIML stack" in html
+    assert b"Inspection done" in html
     rover = client.get("/rover").data
     assert b"How to drive" in rover
+    assert b"Inspection done" in rover
     assert b"Isolation Forest" not in rover
     assert b"predictionRows" not in rover
+
+
+def test_helper_faq_is_local_and_warns(tmp_path):
+    from helper import answer_question
+    from app import create_app
+
+    collapse = answer_question("Will the roof collapse? Give me a probability.", allow_llm=False)
+    assert collapse["llm"] is False
+    assert collapse["warn"] is True
+    assert "probability" in collapse["answer"].lower()
+    assert "not" in collapse["answer"].lower()
+
+    flash = answer_question("how do I put the code on the hardware", allow_llm=False)
+    assert flash["topic"] == "flash"
+    assert "Arduino" in flash["answer"]
+    assert "node.ino" in flash["answer"]
+
+    ppm = answer_question("what is the CO ppm?", allow_llm=False)
+    assert ppm["warn"] is True
+    assert "raw" in ppm["answer"].lower()
+
+    rover = answer_question("does IR stop the motors?", allow_llm=False)
+    assert rover["topic"] == "ir"
+    assert "does not" in rover["answer"].lower()
+
+    app, _ = create_app("simulate", db_path=tmp_path / "web.db")
+    client = app.test_client()
+    posted = client.post("/api/helper", json={"question": "What is MOLE?"})
+    assert posted.status_code == 200
+    body = posted.get_json()
+    assert body["llm"] is False
+    assert "SIH26025" in body["answer"]
+    assert (ROOT / "helper_handbook.md").is_file()
+    openq = answer_question("write a one-line thank-you to a mentor for tonight's lab", allow_llm=False)
+    assert openq["ok"] is True
+    assert "helper" in openq["answer"].lower()
+    assert "I only answer MOLE" not in openq["answer"]
+    mathq = answer_question("What is 2 plus 2?", allow_llm=False)
+    assert "4" in mathq["answer"]
+    monitoring = client.get("/monitoring").data
+    rover_page = client.get("/rover").data
+    assert b"/assets/helper.js" in monitoring
+    assert b"/assets/helper.js" in rover_page
+    assert b"Drive controls" not in monitoring
+
+
+def test_helper_mistral_uses_api_key(tmp_path, monkeypatch):
+    import helper
+
+    class FakeResp:
+        status_code = 200
+        headers = {}
+
+        def json(self):
+            return {"choices": [{"message": {"content": "Node A MPU is GPIO21/22."}}]}
+
+    monkeypatch.setenv("MOLE_HELPER_LLM_TEST", "1")
+    monkeypatch.setenv("MISTRAL_API_KEY", "test-key-not-real")
+    monkeypatch.setenv("MISTRAL_MODEL", "mistral-small-latest")
+    monkeypatch.setattr(helper.requests, "post", lambda *args, **kwargs: FakeResp())
+
+    status = helper.helper_status()
+    assert status["llm"] is True
+    assert status["provider"] == "mistral"
+
+    result = helper.ask_llm("Why would a judge confuse rover IMU with Node B?", {})
+    assert result is not None
+    assert "GPIO21" in result["answer"]
+    assert result["model"] == "mistral-small-latest"
 
 
 def test_shipped_prior_models_are_ready_and_flag_outliers():

@@ -68,8 +68,10 @@ static void emitJson(const SensorPacket &p) {
   } else {
     snprintf(vib_buf, sizeof(vib_buf), "null");
   }
-  if ((p.flags & FLAG_POT) && p.sliderRaw >= 0) {
+  uint8_t valid = p.flags;
+  if (p.sliderRaw >= 0) {
     snprintf(adc_buf, sizeof(adc_buf), "%d", (int)p.sliderRaw);
+    valid |= FLAG_POT;
   } else {
     snprintf(adc_buf, sizeof(adc_buf), "null");
   }
@@ -79,7 +81,7 @@ static void emitJson(const SensorPacket &p) {
       "\"gateway_ms\":%lu,\"valid\":%u,\"roll_deg\":%s,\"pitch_deg\":%s,"
       "\"vibration_g\":%s,\"adc_raw\":%s}\n",
       p.nodeId, (unsigned long)p.sequence, (unsigned long)p.uptimeMs, (unsigned long)millis(),
-      p.flags, roll_buf, pitch_buf, vib_buf, adc_buf);
+      valid, roll_buf, pitch_buf, vib_buf, adc_buf);
 }
 
 static void onRecv(const esp_now_recv_info_t *info, const uint8_t *data, int len) {

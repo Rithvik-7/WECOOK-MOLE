@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="MOLE rover inspection controls">
   <title>MOLE · Rover Inspection</title>
-  <link rel="stylesheet" href="/assets/ui.css">
+  <link rel="stylesheet" href="/assets/ui.css?v=ui3">
 </head>
 <body>
   <nav class="topbar" aria-label="Primary navigation">
@@ -22,14 +22,17 @@
   <main class="page">
     <header class="page-header">
       <div>
-        <p class="eyebrow">Inspection</p>
+        <p class="eyebrow">SIH26025 · Remote inspection</p>
         <h1>Rover</h1>
         <p class="lede">
           Drive only after reviewing a monitoring warning. Ultrasonic reports centimetres.
           IR is a short-range digital flag on GPIO19 — it does not stop the motors.
         </p>
       </div>
-      <a class="button" href="/monitoring">Back to Monitoring &amp; AI</a>
+      <div class="row">
+        <a class="button" href="/monitoring">Back to Monitoring &amp; AI</a>
+        <button class="button primary" type="button" id="inspectionDone">Inspection done</button>
+      </div>
     </header>
 
     <section class="summary" id="roverSummary" aria-label="Rover summary">
@@ -167,6 +170,7 @@
     </div>
   </main>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="/assets/rover.js"></script>
+  <script type="module" src="/assets/rover.js?v=ui3"></script>
+  <script type="module" src="/assets/helper.js?v=ui3"></script>
 </body>
 </html>

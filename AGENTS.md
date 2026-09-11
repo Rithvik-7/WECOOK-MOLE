@@ -235,6 +235,7 @@ Artifacts:
 | POST | `/api/baseline` | `{node_id: 1\|2}` |
 | POST | `/api/ack` | awareness only |
 | POST | `/api/clear` | needs 3 recovered NORMAL; 409 if not |
+| POST | `/api/inspection-done` | operator closed rover inspect; clears recovered latches on A and B; history kept |
 | POST | `/api/train` | live only; ≥120 NORMAL; blocked if WATCH/ALERT/UNKNOWN/sim |
 | POST | `/api/calibration` | `adc0,adc1,mm0,mm1` distinct ADC |
 | POST | `/api/scenario` | simulate only: `normal rising watch alert offline sensor_fault` |
@@ -349,7 +350,7 @@ Cursor rules (always apply): `.cursor/rules/mole-project.mdc`, `mole-hardware.md
 4. WATCH → ALERT with the **measured reason**. Rules and ML side by side.
 5. Open **Rover Inspection because a warning appeared**.
 6. Hold FWD (wheels raised first), STOP, show cm + IR flag + MQ-7 raw. IR does not auto-brake.
-7. Ack; recover mounts; clear after three NORMAL; history still lists the event.
+7. Recover mounts; **Inspection done** (or Ack + Clear after three NORMAL); history still lists the event.
 
 Pitch sentence:
 
@@ -359,7 +360,7 @@ Pitch sentence:
 
 ## 7. What is done vs leftover
 
-**Done in software:** firmware sketches, Flask two-page site, rules, IF+LOF+joint, holdout forecast, priors, simulate scenarios, rover proxy + IR honesty, CSV, tests (~25), paper UI.
+**Done in software:** firmware sketches, Flask two-page site, rules, IF+LOF+joint, holdout forecast, priors, simulate scenarios, rover proxy + IR honesty, Inspection done, CSV, tests (~32), paper UI.
 
 **Not done until hardware day:** flashing, COM port, ESP-NOW range, slider mechanics, motor polarity, echo divider on the real board, IR aiming/lighting, AP join on the demo laptop, live baseline/cal, optional live retrain.
 
