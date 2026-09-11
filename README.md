@@ -19,6 +19,7 @@ Ministry of Coal · category **Hardware** · theme **Disaster Management**
 
 ## Contents
 
+- [Team WE COOK](#team-we-cook)
 - [Why this problem](#why-this-problem)
 - [What we built](#what-we-built)
 - [Run the demo (no hardware)](#run-the-demo-no-hardware)
@@ -31,7 +32,24 @@ Ministry of Coal · category **Hardware** · theme **Disaster Management**
 - [Future (team roadmap)](#future-team-roadmap)
 - [License](#license)
 
-Teammates and coding agents: start at **[AGENTS.md](AGENTS.md)** (pins, packet format, APIs). Document index: **[docs/](docs/README.md)**.
+Teammates and coding agents: start at **[AGENTS.md](AGENTS.md)** (pins, packet format, APIs). Document index: **[docs/](docs/README.md)**. Named roster: **[docs/TEAM.md](docs/TEAM.md)**.
+
+---
+
+## Team WE COOK
+
+**CMR Institute of Technology (CMRIT)** · Smart India Hackathon 2026 · **SIH26025**
+
+| Name | Department | On this project |
+|---|---|---|
+| **Ritvik** — team leader, 2nd year | IC | Lead. AI/ML and the operator website |
+| **Komala TG** | IC | Website design and backend |
+| **Pragati Karvi** | IC | Website design and backend |
+| **Pallabi Samantha** | IC | Basic electronics, website design, and backend |
+| **Devika** | EC | Electronics planning and hardware |
+| **Venkatesh** | EC | Electronics planning and hardware |
+
+The SIH portal 6-slide template shows the team name **WE COOK**. This table is who actually built MOLE.
 
 ---
 

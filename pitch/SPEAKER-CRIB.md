@@ -2,7 +2,7 @@
 
 Use the **same words** as the slides. Do not add collapse %, lives saved, LoRa, autonomy, or CO ppm.
 
-1. **Title.** SIH26025, Ministry of Coal, Hardware, Disaster Management. Team WE COOK. Idea is MOLE: monitor the model, warn from evidence, inspect on command.
+1. **Title.** SIH26025, Ministry of Coal, Hardware, Disaster Management. Team WE COOK, CMRIT. Idea is MOLE: monitor the model, warn from evidence, inspect on command.
 
 2. **Solution.** Two nodes watch continuously. Rules + Isolation Forest + 30 s Ridge explain. Rover is inspection after the officer decides — not the monitor. Point at the honesty table: prediction means next 30 seconds of signals, not subsidence.
 
