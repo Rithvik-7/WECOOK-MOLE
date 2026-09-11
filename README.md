@@ -38,20 +38,18 @@ Teammates and coding agents: start at **[AGENTS.md](AGENTS.md)** (pins, packet f
 
 ## Team
 
-**WE COOK** · CMR Institute of Technology (**CMRIT**) · six members.
+**WE COOK** · CMR Institute of Technology (**CMRIT**) · six members, all **2nd year**.
 
-| Name | Department | On this project |
+| Name | Dept | On this project |
 |---|---|---|
-| **Ritvik** | IC, 2nd year | **Team leader** · AI/ML · website |
-| **Komala TG** | IC | Website design and backend |
-| **Pragati Karvi** | IC | Website design and backend |
-| **Pallabi Samantha** | IC | Basic electronics · website design and backend |
-| **Devika** | EC | Electronics planning and hardware |
-| **Venkatesh** | EC | Electronics planning and hardware |
+| **Rithvik** | ISE | **Team leader** — coordination, research, AI/ML, PPTs, Python website (front and back) |
+| **Komala TG** | IE | **Core coordinator** — research, PPT, basic AI/ML, website backend |
+| **Venkatesh** | EC | **Electronics lead** — hardware planning and build |
+| **Devika** | EC | **Electronics lead** — hardware planning and build |
+| **Pragati Karvi** | IC | Website front and back, PPT, demo |
+| **Pallavi Samantha** | IC | Research, website design, basic electronics |
 
-IC = Instrumentation and Control. EC = Electronics and Communication. Full notes: [docs/TEAM.md](docs/TEAM.md).
-
-The SIH portal **6-slide idea PPT** does not include this roster (official template). Names live here on GitHub.
+Full roster: [docs/TEAM.md](docs/TEAM.md). The SIH **6-slide idea PPT** does not include names (official template).
 
 ---
 

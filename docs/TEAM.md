@@ -1,28 +1,19 @@
 # Team WE COOK
 
-**Smart India Hackathon 2026** · PS **SIH26025** · **CMR Institute of Technology (CMRIT)**
+**CMR Institute of Technology (CMRIT)** · all **2nd year** · SIH **2026** · **SIH26025**
 
-MOLE is a six-person hardware + laptop-ML project. The official SIH **6-slide idea PPT** does not carry a roster (template rule). This page is the GitHub / judge-pack roster.
+The official 6-slide idea PPT has no roster (SIH template). This is the GitHub / judge-pack order.
 
-| Name | Department | Role on MOLE |
-|---|---|---|
-| **Ritvik** (team leader) | IC, 2nd year | AI/ML and the operator website |
-| **Komala TG** | IC | Website design and backend |
-| **Pragati Karvi** | IC | Website design and backend |
-| **Pallabi Samantha** | IC | Basic electronics, website design, and backend |
-| **Devika** | EC | Electronics planning and hardware |
-| **Venkatesh** | EC | Electronics planning and hardware |
+| # | Name | Dept | Role |
+|---|---|---|---|
+| 1 | **Rithvik** | ISE | **Team leader.** Coordinated the team, research, AI/ML, PPTs, and the Python website (frontend and backend). |
+| 2 | **Komala TG** | IE | **Core coordinator.** Research, PPT, basic AI/ML, website backend, and keeping the team aligned. |
+| 3 | **Venkatesh** | EC | **Electronics lead.** Hardware planning and build — nodes, receiver, rover. |
+| 4 | **Devika** | EC | **Electronics lead.** Hardware planning and build with Venkatesh; electronics brain of MOLE. |
+| 5 | **Pragati Karvi** | IC | Website frontend and backend, PPT, and demo coordination. |
+| 6 | **Pallavi Samantha** | IC | Research, website design, and basic electronics support. |
 
-- **IC** = Instrumentation and Control Engineering  
-- **EC** = Electronics and Communication Engineering  
-- GitHub (leader): [Rithvik-7](https://github.com/Rithvik-7) · repo [WECOOK-MOLE](https://github.com/Rithvik-7/WECOOK-MOLE)
+- **ISE** Information Science and Engineering · **IE** · **IC** Instrumentation and Control · **EC** Electronics and Communication  
+- College is **CMRIT**, not CMIT. GitHub: [Rithvik-7/WECOOK-MOLE](https://github.com/Rithvik-7/WECOOK-MOLE)
 
-## How the work split
-
-**Leadership, AI/ML, website** — Ritvik owns sklearn (Isolation Forest + LOF + joint forest + 30 s forecast), Flask routes, and the monitoring/rover product loop.
-
-**Website design and backend** — Komala TG, Pragati Karvi, and Pallabi Samantha: operator UI, pages, and backend work on the local dashboard.
-
-**Electronics** — Devika and Venkatesh plan and build the hardware path (nodes, receiver, rover wiring, L298N, sensors). Pallabi also helped with basic electronics.
-
-Everyone is at **CMRIT**. Do not write CMIT.
+Venkatesh and Devika own the electronics. Software and PPT work sits with Rithvik, Komala, Pragati, and Pallavi. Komala is the main coordinator after the lead.
