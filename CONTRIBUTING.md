@@ -1,8 +1,6 @@
-# Contributing (team WE COOK)
+# Contributing (team WE COOK · CMRIT)
 
-**CMRIT** · SIH26025. Roster: [docs/TEAM.md](docs/TEAM.md).
-
-This is a Smart India Hackathon 2026 hardware project (**SIH26025**). Read **[AGENTS.md](AGENTS.md)** before changing pins, radio, ML, dashboard copy, or the pitch.
+This is a Smart India Hackathon 2026 hardware project (**SIH26025**). Roster: **[docs/TEAM.md](docs/TEAM.md)**. Read **[AGENTS.md](AGENTS.md)** before changing pins, radio, ML, dashboard copy, or the pitch.
 
 ## Rules of the road
 

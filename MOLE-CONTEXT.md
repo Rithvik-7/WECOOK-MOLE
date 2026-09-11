@@ -6,7 +6,8 @@
 **Hackathon:** Smart India Hackathon 2026  
 **Official PS ID:** **SIH26025** (Ministry of Coal · Hardware · Disaster Management)  
 **PS title:** Development of an AI-enabled Low Cost Real Time Mine Subsidence Monitoring, Prediction and Early Warning System for Underground Coal Mines in India  
-**Team size:** 6 (team name: WE COOK)  
+**Team size:** 6 (team name: WE COOK) · **CMRIT** (CMR Institute of Technology), not CMIT  
+**Roster:** Ritvik (leader, IC, AI/ML + website); Komala TG, Pragati Karvi (IC, website/backend); Pallabi Samantha (IC, electronics + website/backend); Devika, Venkatesh (EC, electronics). See `docs/TEAM.md`.  
 **Build type:** Hackathon hardware + **laptop ML** + software demonstration on a tabletop model mine  
 **Parts status:** The team already has the components for Node A, Node B, the rover, and supporting gear (borrowed / jugaad). Do **not** block on budget, shopping lists, or the old ₹4,000 node-only figure.
 
@@ -549,16 +550,16 @@ Older materials exist and **conflict**. Do not follow them when they disagree wi
 
 ## 15. Team and build split (practical)
 
-Six people. A workable split (adapt as needed):
+Six people at **CMR Institute of Technology (CMRIT)** — team **WE COOK**. Roster: `docs/TEAM.md`.
 
-- Hardware 1: Node A wiring, mount, calibration
-- Hardware 2: miniature mechanics, movable surface, Node B
-- Hardware 3: Waveshare ESP32-S3-Zero USB receiver, power, node radio integration
-- Hardware 4 / rover owner: rover mechanics, motor driver, drive firmware, inspection payload
-- Software 1: ingest, validation, calibration, rules, storage, rover command protocol
-- Software 2: dashboard, explanations, demo scenarios, AI verification, pitch evidence
+- **Ritvik** (IC, 2nd year, team leader): AI/ML on the laptop and the operator website
+- **Komala TG** (IC): website design and backend
+- **Pragati Karvi** (IC): website design and backend
+- **Pallabi Samantha** (IC): basic electronics, website design, and backend
+- **Devika** (EC): electronics planning and hardware
+- **Venkatesh** (EC): electronics planning and hardware
 
-Do not invent a fourth monitoring node for the sixth person. The sixth role is rover + its dashboard controls.
+Do not invent a fourth monitoring node. The rover stays one of the three hardware units. College name is **CMRIT**, not CMIT.
 
 ---
 

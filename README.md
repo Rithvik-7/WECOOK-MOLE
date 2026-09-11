@@ -1,6 +1,6 @@
 # MOLE — Mine Observation & Live-alert Engine
 
-**Team WE COOK** · Smart India Hackathon **2026** · Official PS **[SIH26025](https://github.com/Rithvik-7/WECOOK-MOLE)**  
+**Team WE COOK** · **CMRIT** · Smart India Hackathon **2026** · Official PS **[SIH26025](https://github.com/Rithvik-7/WECOOK-MOLE)**  
 Ministry of Coal · category **Hardware** · theme **Disaster Management**
 
 [![SIH26025](https://img.shields.io/badge/SIH-26025-0B3D91)](https://github.com/Rithvik-7/WECOOK-MOLE)
@@ -19,7 +19,7 @@ Ministry of Coal · category **Hardware** · theme **Disaster Management**
 
 ## Contents
 
-- [Team WE COOK](#team-we-cook)
+- [Team](#team)
 - [Why this problem](#why-this-problem)
 - [What we built](#what-we-built)
 - [Run the demo (no hardware)](#run-the-demo-no-hardware)
@@ -32,24 +32,26 @@ Ministry of Coal · category **Hardware** · theme **Disaster Management**
 - [Future (team roadmap)](#future-team-roadmap)
 - [License](#license)
 
-Teammates and coding agents: start at **[AGENTS.md](AGENTS.md)** (pins, packet format, APIs). Document index: **[docs/](docs/README.md)**. Named roster: **[docs/TEAM.md](docs/TEAM.md)**.
+Teammates and coding agents: start at **[AGENTS.md](AGENTS.md)** (pins, packet format, APIs). Document index: **[docs/](docs/README.md)**. Roster: **[docs/TEAM.md](docs/TEAM.md)**.
 
 ---
 
-## Team WE COOK
+## Team
 
-**CMR Institute of Technology (CMRIT)** · Smart India Hackathon 2026 · **SIH26025**
+**WE COOK** · CMR Institute of Technology (**CMRIT**) · six members.
 
 | Name | Department | On this project |
 |---|---|---|
-| **Ritvik** — team leader, 2nd year | IC | Lead. AI/ML and the operator website |
+| **Ritvik** | IC, 2nd year | **Team leader** · AI/ML · website |
 | **Komala TG** | IC | Website design and backend |
 | **Pragati Karvi** | IC | Website design and backend |
-| **Pallabi Samantha** | IC | Basic electronics, website design, and backend |
+| **Pallabi Samantha** | IC | Basic electronics · website design and backend |
 | **Devika** | EC | Electronics planning and hardware |
 | **Venkatesh** | EC | Electronics planning and hardware |
 
-The SIH portal 6-slide template shows the team name **WE COOK**. This table is who actually built MOLE.
+IC = Instrumentation and Control. EC = Electronics and Communication. Full notes: [docs/TEAM.md](docs/TEAM.md).
+
+The SIH portal **6-slide idea PPT** does not include this roster (official template). Names live here on GitHub.
 
 ---
 

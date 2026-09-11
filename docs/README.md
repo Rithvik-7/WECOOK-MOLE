@@ -5,7 +5,7 @@ Public pack for **SIH26025** / team **WE COOK**. The idea PPT for the SIH portal
 | Document | What it is |
 |---|---|
 | [../README.md](../README.md) | Project home: run, demo, honesty, links |
-| [TEAM.md](TEAM.md) | Named roster and who built what |
+| [TEAM.md](TEAM.md) | Names, CMRIT departments, who did what |
 | [DEMO.md](DEMO.md) | Judge / rehearsal script |
 | [STACK.md](STACK.md) | Hardware, software, websites, and libraries we actually use |
 | [FUTURE.md](FUTURE.md) | What we will not claim today, and what the team wants next |

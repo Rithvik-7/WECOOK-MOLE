@@ -11,9 +11,8 @@ This document is for future coding agents and teammates. It is the current as-bu
 | Field | Value |
 |---|---|
 | Project name | **MOLE** — Mine Observation & Live-alert Engine |
-| Team | **WE COOK** (GitHub: **WECOOK-MOLE**) |
-| College | **CMRIT** (CMR Institute of Technology) |
-| Members | Ritvik (lead, IC, AI/ML + website); Komala TG, Pragati Karvi (IC, website + backend); Pallabi Samantha (IC, electronics + website + backend); Devika, Venkatesh (EC, electronics) |
+| Team | **WE COOK** · **CMRIT** (not CMIT) · GitHub **WECOOK-MOLE** |
+| Members | Ritvik (leader, AI/ML + website); Komala TG, Pragati Karvi (website design + backend); Pallabi Samantha (basic electronics + website/backend); Devika, Venkatesh (electronics). IC: Ritvik, Komala, Pragati, Pallabi. EC: Devika, Venkatesh. See `docs/TEAM.md`. |
 | Event | **Smart India Hackathon 2026** |
 | Official PS ID | **SIH26025** |
 | That means | SIH 2026 problem **025** |
