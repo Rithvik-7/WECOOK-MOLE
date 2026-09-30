@@ -1,0 +1,15 @@
+{
+  "buildCommand": "cd web && npm install && npm run build",
+  "outputDirectory": "web/.next",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://127.0.0.1:8001/api/:path*"
+    }
+  ],
+  "env": {
+    "MOLE_API_INTERNAL": {
+      "default": "http://127.0.0.1:8001"
+    }
+  }
+}
