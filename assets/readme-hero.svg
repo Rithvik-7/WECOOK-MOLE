@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="title desc">
+  <title id="title">MOLE — Mine Observation and Live-alert Engine</title>
+  <desc id="desc">Smart India Hackathon 2026 screening project banner for SIH26025 by Team WE COOK.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1d18"/>
+      <stop offset="0.58" stop-color="#142820"/>
+      <stop offset="1" stop-color="#20372d"/>
+    </linearGradient>
+    <linearGradient id="earth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9c695"/>
+      <stop offset="1" stop-color="#8c7048"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="520" rx="30" fill="url(#bg)"/>
+  <circle cx="1360" cy="45" r="270" fill="#2b4939" opacity=".52"/>
+  <path d="M0 430 C210 365 330 465 520 405 C730 340 855 458 1040 397 C1260 324 1415 401 1600 340 V520 H0Z" fill="url(#earth)" opacity=".93"/>
+  <path d="M0 462 C260 400 380 497 625 438 C875 376 1020 485 1245 418 C1400 372 1510 393 1600 376" fill="none" stroke="#f2e5bd" stroke-width="5" opacity=".42"/>
+  <g transform="translate(1130 145)">
+    <path d="M0 180 C90 95 190 95 285 180" fill="none" stroke="#53b88b" stroke-width="8" stroke-dasharray="14 14"/>
+    <g fill="#f2ead3" stroke="#0c1d18" stroke-width="8">
+      <circle cx="0" cy="180" r="27"/><circle cx="95" cy="118" r="27"/><circle cx="190" cy="118" r="27"/><circle cx="285" cy="180" r="27"/>
+    </g>
+    <g fill="#f77a18"><circle cx="0" cy="180" r="10"/><circle cx="95" cy="118" r="10"/><circle cx="190" cy="118" r="10"/><circle cx="285" cy="180" r="10"/></g>
+  </g>
+  <text x="78" y="86" fill="#f5c56b" font-family="Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="5">SMART INDIA HACKATHON 2026 · SIH26025</text>
+  <text x="72" y="250" fill="#f7f2e7" font-family="Arial, sans-serif" font-size="126" font-weight="800" letter-spacing="3">MOLE</text>
+  <rect x="74" y="274" width="105" height="9" rx="4" fill="#f77a18"/>
+  <text x="74" y="334" fill="#c9d5cd" font-family="Arial, sans-serif" font-size="38">Mine Observation &amp; Live-alert Engine</text>
+  <text x="76" y="385" fill="#8db69e" font-family="Arial, sans-serif" font-size="25">Sense the ground · Predict movement · Warn early · Verify safely</text>
+  <text x="76" y="468" fill="#f7f2e7" font-family="Arial, sans-serif" font-size="25" font-weight="700">TEAM WE COOK</text>
+</svg>

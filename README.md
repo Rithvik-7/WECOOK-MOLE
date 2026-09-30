@@ -1,230 +1,219 @@
-# MOLE — Mine Observation & Live-alert Engine
+<p align="center">
+  <img src="assets/readme-hero.svg" alt="MOLE — Mine Observation and Live-alert Engine" width="100%">
+</p>
 
-**Team WE COOK** · **CMRIT** · Smart India Hackathon **2026** · Official PS **[SIH26025](https://github.com/Rithvik-7/WECOOK-MOLE)**  
-Ministry of Coal · category **Hardware** · theme **Disaster Management**
+<p align="center">
+  <strong>Sense the ground. Predict movement. Warn early. Verify safely.</strong>
+</p>
 
-[![SIH26025](https://img.shields.io/badge/SIH-26025-0B3D91)](https://github.com/Rithvik-7/WECOOK-MOLE)
-[![Python](https://img.shields.io/badge/python-3.12-3776AB)](software/requirements.txt)
-[![sklearn](https://img.shields.io/badge/ML-scikit--learn-F7931E)](AI-PLAN.md)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+<p align="center">
+  <img alt="SIH 2026" src="https://img.shields.io/badge/Smart%20India%20Hackathon-2026-F77A18">
+  <img alt="Problem statement" src="https://img.shields.io/badge/Problem-SIH26025-1E5A43">
+  <img alt="Category" src="https://img.shields.io/badge/Category-Hardware-12324A">
+  <img alt="Team" src="https://img.shields.io/badge/Team-WE%20COOK-6B55A3">
+  <img alt="Demo data" src="https://img.shields.io/badge/Demo%20data-clearly%20labelled-0E8B8F">
+</p>
 
-> Two fixed nodes watch a tabletop mine model. The laptop latches an early warning and runs **Isolation Forest + a 30 s sensor forecast**. A rover inspects **after** the officer decides.  
-> Measurements indicate **disturbance**. They do **not** prove a collapse.
+# MOLE
 
-**Portal / 6-slide ID: `SIH26025` only.** Do not write `SIH2026025`.
+MOLE (Mine Observation & Live-alert Engine) is Team **WE COOK's** low-cost, offline-first prototype for mine-subsidence monitoring and early warning. It combines distributed surface sensors, a local gateway, explainable safety rules, a web dashboard, an Android field companion, and an operator-approved inspection workflow.
 
-![Tabletop cutaway](ppt/assets/cutaway-169.png)
+This is the curated **SIH 2026 screening release** for Problem Statement **SIH26025**: _Development of an AI-enabled Low Cost Real Time Mine Subsidence Monitoring, Prediction and Early Warning System for Underground Coal Mines in India_.
 
----
+> **Safety boundary:** MOLE is a student screening prototype, not a certified field-safety system. Demonstration readings are labelled <code>simulated</code>. Missing or stale data is never presented as safe. No trained ML artifact, field certification, autonomous rescue dispatch, or production communication result is claimed.
 
-## Contents
+## Screening proof
 
-- [Team](#team)
-- [Why this problem](#why-this-problem)
-- [What we built](#what-we-built)
-- [Run the demo (no hardware)](#run-the-demo-no-hardware)
-- [Live hardware](#live-hardware)
-- [Pitch, PPT, and judge pack](#pitch-ppt-and-judge-pack)
-- [Local websites](#local-websites)
-- [AI that judges can check](#ai-that-judges-can-check)
-- [Honesty](#honesty)
-- [Repository map](#repository-map)
-- [Future (team roadmap)](#future-team-roadmap)
-- [License](#license)
+| Deliverable | Open / download |
+|---|---|
+| Official SIH deck | [PPTX](presentation/MOLE-SIH26025-Official-Format-v2.pptx) · [PDF](presentation/MOLE-SIH26025-Official-Format-v2.pdf) |
+| Two-page summary | [PDF](documents/MOLE-SIH26025-Two-Page-Summary.pdf) |
+| Detailed judge document | [PDF](documents/MOLE-SIH26025-Judge-Document.pdf) |
+| Android screening build | [MOLE-Android.apk](release/MOLE-Android.apk) |
+| Sample telemetry | [CSV](telemetry/mole-telemetry.csv) · [Excel](telemetry/mole-telemetry.xlsx) |
 
-Teammates and coding agents: start at **[AGENTS.md](AGENTS.md)** (pins, packet format, APIs). Document index: **[docs/](docs/README.md)**. Roster: **[docs/TEAM.md](docs/TEAM.md)**.
+## The idea
 
----
+Conventional inspections can miss localized movement between visits, while a single noisy sensor can create a misleading alarm. MOLE adds continuous, auditable evidence around the decision:
 
-## Team
+1. **Sense** tilt, vibration, displacement input, gas, and environmental context.
+2. **Link** ESP32 nodes to a local receiver and gateway with an offline queue.
+3. **Think** with data-quality checks, persistent movement rules, robust trend statistics, and optional anomaly/forecast research.
+4. **Act** through local alarms, a live dashboard, incident records, and explainable warnings.
+5. **Verify** a flagged location through an operator-approved rover/inspection workflow.
+6. **Learn** from reviewed evidence without allowing a model to silently override safety rules.
 
-**WE COOK** · CMR Institute of Technology (**CMRIT**) · **ISE**, all **2nd year**.
+~~~mermaid
+flowchart LR
+    A[Surface sensor nodes] --> B[ESP32 receiver]
+    B --> C[Local FastAPI gateway]
+    C --> D[Trust and safety rules]
+    D --> E[Next.js dashboard]
+    D --> F[Incident and alert records]
+    F --> G[Operator-approved inspection]
+    G --> H[Reviewed evidence]
+    H -. future training labels .-> D
+~~~
 
-| Name | Dept | On this project |
+## What is implemented
+
+| Area | Screening release | Pilot direction |
 |---|---|---|
-| **Rithvik** | ISE | **Team leader** — coordination, research, AI/ML, PPTs, Python frontend and backend |
-| **Komala TG** | ISE | Shared AI/ML, backend, research, PPT |
-| **Venkatesh** | ISE | Ordered and managed all electronics; also backend |
-| **Devika** | ISE | Ordered and managed all electronics; also backend |
-| **Pragati Karvi** | ISE | Frontend, backend, PPT, demo |
-| **Pallavi Samantha** | ISE | Research, website design, basic electronics |
+| Sensing | Four configured nodes, per-channel validity, source and timestamp metadata | Six-node multi-physics surface array |
+| Radio | ESP32 receiver and serial gateway | LoRa/long-range field link with store-and-forward |
+| Detection | Persistent movement rules, robust window baseline, median shift, trend rate, stale/fault handling | Reviewed Isolation Forest and calibrated short/medium-horizon forecasts |
+| Alerts | Explainable condition, incident record, local dashboard, SOS/bulletin workflow | Production SMS, email and push providers |
+| Mapping | Schematic East Panel node map and per-node state | Surveyed GIS cells and mine-specific risk zones |
+| Inspection | Mission records, evidence notes and safe refusal of unsupported drive commands | Instrumented rover with camera, gas and temperature |
+| Assistant | Optional provider-backed evidence assistant with local source context | Offline RAG over approved SOPs and incidents |
+| Storage | Local SQLite, exports, reports and backup utility | Hardened gateway storage and controlled synchronization |
 
-Full roster: [docs/TEAM.md](docs/TEAM.md). The SIH **6-slide idea PPT** does not include names (official template).
+## Calibration: set the current position to zero
 
----
+The calibration page is intentionally simple:
 
-## Why this problem
+1. Select a station and sensor.
+2. Keep the sensor still in its normal position.
+3. Pair the operator session and press **Set current position as zero**.
+4. MOLE stores the median of recent valid readings as the active baseline.
+5. The page shows movement relative to zero. Movement outside the channel's small noise allowance is shown as **DANGER**.
 
-SIH26025 asks for an **AI-enabled, low-cost, real-time** mine **subsidence monitoring, prediction, and early warning** system.
+Raw readings are preserved. A new zero supersedes the previous active baseline, and the history remains auditable. The commissioned tilt baseline is also used by the prototype movement rule.
 
-Underground mining can tilt the ground, open cracks, or change vibration. A safety officer needs to **notice a change, read the evidence, and inspect** — on this project, on a **tabletop model**, not a certified mine.
+## Current node configuration
 
-MOLE is **one** system:
+| Unit | Prototype role | Current channels |
+|---|---|---|
+| Node A | Mine-entrance surface motion | MPU tilt, vibration, potentiometer counts |
+| Node B | Removable ground panel | MPU tilt, vibration, DS18B20 air temperature |
+| Node C | Ventilation shaft | MPU tilt, vibration, potentiometer counts, warmed-up MQ-2 raw signal |
+| Node D | Local alarm and climate | BMP280 temperature/pressure, LCD and buzzer; tilt only when an MPU is fitted |
+| Receiver | Laptop-connected collector | ESP32-S3 USB serial receiver |
+| Rover R1 | Inspection workflow | Mission/evidence records; motion is refused until a controller is confirmed |
 
-**Node A + Node B + laptop ML + Rover + one local dashboard**
+Potentiometer counts are not millimetres until mechanically calibrated. MQ-2 values are raw signals, not gas concentration. An unavailable value remains unavailable rather than being replaced with zero.
 
-The rover is not optional. ML is not optional. We do not pitch a gas-car maze robot.
+## Run the fake-data screening demo
 
----
+The API automatically creates a fresh SQLite database and seeds clearly labelled demonstration readings when the selected database is empty.
 
-## What we built
+### 1. API
 
-```text
- Node A (ESP32)                 Node B (ESP32)
- MPU6050 + 10 kΩ crack slider   MPU6050 comparison (no slider)
-        \                         /
-         \______ ESP-NOW ch 1 ____/
-                      |
-                      v
-         Waveshare ESP32-S3-Zero
-         USB-C JSON @ 115200
-                      |
-                      v
-         Laptop Flask site  (sklearn lives here)
-         rules latch + Isolation Forest + 30 s forecast
-                      |
-                      v
-         Officer decides to inspect
-                      |
-                      v
-         Rover ESP32  Wi-Fi AP Mine-Rover-AP
-         L298N drive + ultrasonic + IR + MQ-7 raw + IMU
-```
+~~~powershell
+python -m pip install -r api/requirements.txt httpx pytest
+$env:MOLE_DB = "$PWD\data\screening-demo.db"
+$env:MOLE_OPERATOR_TOKEN = "choose-a-long-demo-token"
+python -m uvicorn main:app --app-dir api --host 127.0.0.1 --port 8001
+~~~
 
-![Architecture](ppt/assets/architecture.png)
+### 2. Website
 
-| Unit | Job |
+Open a second terminal:
+
+~~~powershell
+cd web
+npm install
+$env:MOLE_API_INTERNAL = "http://127.0.0.1:8001"
+npm run dev -- --hostname 0.0.0.0 --port 3001
+~~~
+
+Open [http://127.0.0.1:3001](http://127.0.0.1:3001). To view it from a phone on the same Wi-Fi network, replace <code>127.0.0.1</code> with the laptop's IPv4 address and allow the selected port through the local firewall.
+
+The public monitoring views open without an account. Acknowledgement, closure, calibration, import commit, and rover notes require pairing the browser with the same <code>MOLE_OPERATOR_TOKEN</code>. The token is never embedded in the frontend source.
+
+## Connect physical nodes
+
+The receiver firmware is in [firmware/receiver](firmware/receiver), node firmware is in the corresponding [firmware](firmware) folders, and the serial-to-API bridge is [gateway/gateway.py](gateway/gateway.py). Wiring and capability limits are documented in [HARDWARE.md](docs/HARDWARE.md) and [WIRING.md](docs/WIRING.md).
+
+Physical packets must retain <code>origin: physical</code>, sequence and timing metadata. The API marks old or implausibly future-dated physical packets stale. Offline and stale nodes are not silently converted to normal.
+
+## Dashboard capabilities
+
+- Live node overview, channel history and source labels
+- Simple zero-position calibration with previous-setting history
+- Explainable movement, gas, stale-data and sensor-fault states
+- Incident acknowledgement, review, closure and generated records
+- Schematic panel map and node health
+- Telemetry CSV/XLSX export and evidence archive
+- Operator-approved inspection missions and evidence notes
+- Field companion/SOS outbox for intermittent connectivity
+- Optional evidence assistant that remains advisory
+- Responsive desktop and phone layouts
+
+## Data and AI trust model
+
+The screening build uses deterministic safety logic and descriptive statistics. It does **not** load a trained Isolation Forest model. The <code>ml/</code> tools are included for reproducible evaluation and future reviewed experiments.
+
+The decision boundary is:
+
+- Rules remain the safety authority.
+- A model may add evidence; it may not dismiss an active rule-based warning.
+- Every reading carries origin, time, validity and session information.
+- Stale, missing and invalid inputs are first-class states.
+- Baselines and experiment labels require operator review.
+- Rover evidence becomes a potential learning label only after review.
+
+## API highlights
+
+| Endpoint | Purpose |
 |---|---|
-| **Node A** | Tilt, vibration, crack slider |
-| **Node B** | Comparison tilt / vibration |
-| **Receiver** | ESP-NOW → USB. No sensors |
-| **Laptop** | Calibrate, store, rules, ML, UI |
-| **Rover** | Remote inspect on its **own** Wi-Fi AP |
+| <code>GET /health</code> | Local deployment and database health |
+| <code>GET /api/state</code> | Nodes, analysis, incidents, missions and data origin |
+| <code>POST /api/telemetry</code> | Validated physical/simulated/imported/inferred readings |
+| <code>GET/POST /api/calibrations</code> | Baseline records and zero-position workflow |
+| <code>GET /api/events</code> | Server-sent live state updates |
+| <code>GET /api/exports/telemetry.csv</code> | Auditable telemetry export |
+| <code>GET /api/exports/telemetry.xlsx</code> | Spreadsheet export |
+| <code>POST /api/incidents/{id}/acknowledge</code> | Protected operator action |
+| <code>POST /api/missions</code> | Protected inspection record |
+
+## Repository layout
+
+~~~text
+api/           FastAPI service, persistence, analysis and reports
+web/           Next.js monitoring and calibration dashboard
+mobile/        React Native field companion source
+firmware/      ESP32 node and receiver firmware
+gateway/       Serial receiver-to-API bridge
+ml/            Evaluation and short-horizon research utilities
+tests/         Backend and frontend logic tests
+docs/          Hardware, wiring, requirements and operations
+presentation/  Final official SIH screening deck
+documents/     Final screening/judge PDFs
+release/       Android APK
+telemetry/     Sample labelled telemetry
+assets/        README and screening visuals
+~~~
+
+## Verification
+
+~~~powershell
+python -m pytest tests -q
+node tests/test_stage7.mjs
+node tests/offline.test.mjs
+node tests/map.test.mjs
+node tests/forecast.test.mjs
+cd web
+npm ci
+npm run build
+~~~
+
+## Known limits before field use
+
+- The site is local HTTP unless a real host and TLS certificate are configured.
+- The map is schematic, not surveyed GIS.
+- Seed data proves the interface flow, not field performance.
+- No measured radio range, weather provider, SMS/email/push provider, or emergency dispatch integration is claimed.
+- No trained production ML model is loaded.
+- Sensor mounting, site baselines, alarm thresholds, enclosures, power design and maintenance procedures require controlled validation.
+- The rover workflow records inspections; it does not claim autonomous motion.
+
+The proposed scale-up is evidence-gated: tabletop prototype → controlled validation → surface pilot → field hardening.
+
+## Research basis
+
+The design direction follows the SIH26025 problem scope and uses primary technical context from DGMS/CSIR-CIMFR, TDK InvenSense, Bosch Sensortec, Espressif, the LoRa Alliance, and scikit-learn/Liu et al. These references guide engineering choices; they do not certify this prototype.
 
 ---
 
-## Run the demo (no hardware)
-
-```powershell
-cd software
-python -m pip install -r requirements.txt
-python app.py --mode simulate
-```
-
-Then open:
-
-| Page | URL |
-|---|---|
-| Monitoring + AI | http://127.0.0.1:5000/monitoring |
-| Rover Inspection | http://127.0.0.1:5000/rover |
-
-Simulate is **permanently labelled**. It cannot persist-train Isolation Forest. Tabletop **priors** still load so IF is READY. Use rehearsal **Rising trend** for the judge-friendly forecast: Node A climbs, Node B stays quiet.
-
-```powershell
-python -m pytest -q
-```
-
----
-
-## Live hardware
-
-```powershell
-python app.py --mode live --serial COM3
-```
-
-Use the **Waveshare ESP32-S3-Zero** COM port (often COM3, VID `303A`). Do **not** point `--serial` at the rover CP2102.
-
-1. Flash four sketches — see [firmware/README.md](firmware/README.md). Receiver: **USB CDC On Boot = Enabled**.
-2. Close Arduino Serial Monitor. Prove JSON for `node_id` 1 and 2 at 115200.
-3. Baseline A / Baseline B with mounts still. Two-point slider cal (rest = 0 mm).
-4. Join **Mine-Rover-AP**, keep the Flask tab, raise wheels, **hold** FWD. ENA/ENB **jumpers stay ON** (not wired to the ESP32).
-5. After inspect and recovery, **Inspection done** closes the recovered latch. History stays.
-
-Live USB drop retries every 2 s. Nodes go UNKNOWN after 5 s. Live **never** silently fakes data.
-
-Full pin map, packet struct, and APIs: [AGENTS.md](AGENTS.md). Judge walkthrough: [docs/DEMO.md](docs/DEMO.md).
-
----
-
-## Pitch, PPT, and judge pack
-
-| File | Use |
-|---|---|
-| [pitch/SIH26025_WE_COOK_IDEA.pdf](pitch/SIH26025_WE_COOK_IDEA.pdf) | **Official 6-slide idea PPT (PDF for portal)** |
-| [pitch/SIH26025_WE_COOK_IDEA.pptx](pitch/SIH26025_WE_COOK_IDEA.pptx) | Same deck, PowerPoint |
-| [pitch/SIH26025_WE_COOK_MOLE_2page_summary.pdf](pitch/SIH26025_WE_COOK_MOLE_2page_summary.pdf) | Two-page summary |
-| [pitch/SIH26025_WE_COOK_MOLE_Judge_Document.pdf](pitch/SIH26025_WE_COOK_MOLE_Judge_Document.pdf) | Longer judge brief |
-| [pitch/SIH26025_WE_COOK_MOLE_Judge_QA.pdf](pitch/SIH26025_WE_COOK_MOLE_Judge_QA.pdf) | Q&A booklet |
-| [pitch/SPEAKER-CRIB.md](pitch/SPEAKER-CRIB.md) | ~30 seconds per slide |
-| [ppt/](ppt/) | Earlier 6-slide export + artwork |
-
-![Idea slide preview](ppt/preview/slide/Slide1.PNG)
-
----
-
-## Local websites
-
-Core demo needs **no venue internet**. Flask binds to localhost. Rover commands go to `http://192.168.4.1` only after the laptop joins **Mine-Rover-AP**.
-
-Libraries, datasheets, and sites we actually used: **[docs/STACK.md](docs/STACK.md)**.
-
-Optional **Pip** helper (Mistral) can answer operator questions. Copy [software/.env.example](software/.env.example) to `software/.env`. Pip is **not** the mine AI. Product AI is sklearn.
-
----
-
-## AI that judges can check
-
-| Piece | What you see |
-|---|---|
-| Isolation Forest + LOF | Unusual vs **this tabletop’s** normal · score · top feature · train count |
-| Joint Isolation Forest | A vs B residual · local vs common motion |
-| Holdout forecast | Next **30 s** of tilt / vibration / Node A gap · MAE · dashed overlay |
-| Rules | WATCH 3° / 2 mm · ALERT 6° / 4 mm · three samples · **latch** |
-
-ML **cannot** clear a rule alert. Forecast UI says it is **not a collapse prediction**. Rover IMU never enters node features.
-
----
-
-## Honesty
-
-| Allowed | Forbidden |
-|---|---|
-| NORMAL / WATCH / ALERT / UNKNOWN **on this rig** | Mine is safe / certified / collapse imminent |
-| Isolation Forest score vs this tabletop | Collapse or subsidence **probability** |
-| 30 s forecast of the same signals + MAE | “Roof will fail in N minutes” |
-| MQ-7 **raw ADC** | CO ppm from an uncalibrated MQ-7 |
-| IR digital flag (GPIO19) | Auto-brake / lidar / autonomy |
-| Remote FWD / REV / LEFT / RIGHT / STOP | Camera vision / LLM geology / LoRa as shipped |
-
-Green means **fresh valid data** and no configured tabletop trigger. It does **not** certify a mine.
-
----
-
-## Repository map
-
-```text
-WECOOK-MOLE/
-├── README.md                 ← you are here
-├── AGENTS.md                 ← as-built contract
-├── MOLE-CONTEXT.md           ← product long form
-├── docs/                     ← demo, stack, future, document index
-├── pitch/                    ← SIH 6-slide + judge PDFs
-├── ppt/                      ← artwork and earlier export
-├── firmware/                 ← node A, node B, S3 receiver, rover
-├── software/                 ← Flask app, sklearn, tests
-└── hardware/                 ← rover circuit drawing
-```
-
----
-
-## Future (team roadmap)
-
-After SIH we want a **supervised field trial**, more comparison nodes, and better displacement sensing — still without collapse % or fake certification.
-
-Read **[docs/FUTURE.md](docs/FUTURE.md)** for what we are thinking as a team, and what we refuse to pretend is already built.
-
----
-
-## License
-
-[MIT](LICENSE) © 2026 Team WE COOK. Hardware designs follow the frozen pin map in `AGENTS.md`. This software is a tabletop demonstrator, not a mine-safety certificate.
+**Team WE COOK · Team ID 157436 · Smart India Hackathon 2026 · SIH26025**

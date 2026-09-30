@@ -1,0 +1,22 @@
+{
+  "name": "mole-web",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@fontsource/lexend": "^5.2.10",
+    "@fontsource/source-sans-3": "^5.2.8",
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  },
+  "overrides": {
+    "postcss": "8.5.28"
+  }
+}

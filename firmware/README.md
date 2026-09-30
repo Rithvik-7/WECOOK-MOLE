@@ -1,22 +1,53 @@
-# Flash (Arduino IDE)
+# ESP32-S3 firmware
 
-## Node A — classic ESP32 Dev Module
-Open `firmware/node/node.ino`. Keep `NODE_ID 1` and `HAS_POT 1`. Board: ESP32 Dev Module.
+The receiver and all four nodes are ESP32-S3 boards. Nodes send to the receiver. The receiver does not relay them. Its USB serial line is the laptop gateway.
 
-## Node B — classic ESP32 Dev Module
-Open `firmware/node_b/node.ino` (`NODE_ID 2`, `HAS_POT 0`). Board: ESP32 Dev Module.
+Receiver MAC used by every node: `a0:f2:62:f4:66:d0`
 
-## Receiver — Waveshare ESP32-S3-Zero
-Open `firmware/receiver_s3/receiver_s3.ino`.
-Board: Waveshare ESP32-S3-Zero **or** ESP32S3 Dev Module.
-**USB CDC On Boot = Enabled.**
-If upload fails: hold BOOT, tap RESET, release BOOT, upload.
+| Sketch | Board | Parts |
+|---|---|---|
+| `firmware/receiver/receiver.ino` | Receiver, plugged into the laptop | ESP-NOW collector, USB serial |
+| `firmware/node_a/node_a.ino` | Node 1 / A | MPU-6050, slider |
+| `firmware/node_b/node_b.ino` | Node 2 / B | MPU-6050, temperature signal |
+| `firmware/node_c/node_c.ino` | Node 3 / C | MPU-6050, slider, MQ-2, linear sensor |
+| `firmware/node_d/node_d.ino` | Node 4 / D | MPU-6050, BME280, I2C LCD, buzzer |
 
-## Rover — classic ESP32 Dev Module
-Open `firmware/rover/rover.ino`. AP `Mine-Rover-AP` at 192.168.4.1.
+## Pins
 
-Pins: L298N IN1=13 IN2=12 IN3=14 IN4=27; MPU 21/22; HC-SR04 TRIG=5 ECHO=18 via 1k/2k divider; MQ-7 AO=36 raw; **IR OUT=19, LOW=obstacle**. Leave L298N ENA/ENB jumpers on. GPIO19 is not a motor pin.
+These are ESP32-S3 pins. GPIO 22 and GPIO 25 do not exist on this chip.
 
-IR is a digital near-field flag. It does not auto-stop the rover. Debounced (majority of 3). Ambient light and glossy tabletops can false-trip it.
+| Signal | GPIO |
+|---|---|
+| I2C SDA (MPU, and on Node D the BME and LCD) | 8 |
+| I2C SCL | 9 |
+| Slider wiper, Nodes A and C | 4 |
+| Temperature signal, Node B | 4 |
+| Linear sensor, Node C | 5 |
+| MQ-2 analog output, Node C | 6 |
+| Buzzer, Node D | 10 |
 
-Laptop website: `software/TELEMETRY.md`
+Power the MPU, BME, slider, linear sensor, and LCD from 3.3 V. The MQ-2 heater uses 5 V, and its analog pin must stay at or below 3.3 V. Share one ground. Mount every MPU flat with the same face up. Tilt is the angle away from that face.
+
+The Node B temperature module is still unnamed. The sketch reports an ADC count, not degrees. The linear sensor is also a count, not millimetres. MQ-2 stays a raw count, and the gas rule waits 60 seconds after boot.
+
+The Node D LCD may say `NORMAL`. It does not say the mine is safe. The buzzer is a 200 ms pulse.
+
+## Flash
+
+1. Install the ESP32 board package in the Arduino IDE.
+2. Board: **ESP32S3 Dev Module**.
+3. USB CDC On Boot: **Enabled**.
+4. Open one sketch folder, select the COM port for that board, and upload.
+5. Flash the receiver that is already on the laptop first, then each node.
+6. Serial Monitor at **115200**. The receiver's first line is its MAC. It should be `a0:f2:62:f4:66:d0`. If it is different, put the printed MAC into `MOLE_RECEIVER_MAC` in `firmware/common/mole_packet.h` and flash the nodes again.
+
+No extra Arduino libraries are required. The MPU, BME, and LCD are driven from the sketch.
+
+## Laptop
+
+```powershell
+python -m pip install pyserial
+python firmware/receiver/serial_bridge.py COM3
+```
+
+Replace `COM3` with the port Windows shows for the receiver. The bridge stamps the clock once, when the line first arrives, then the gateway queue sends it to the API. Lines that begin with `"unit":"receiver"` are status only and are not stored as node readings.

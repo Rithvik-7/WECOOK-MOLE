@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "MOLE",
+    "slug": "mole",
+    "scheme": "mole",
+    "version": "0.7.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": { "bundleIdentifier": "com.mole.companion", "supportsTablet": false },
+    "android": {
+      "package": "com.mole.companion",
+      "versionCode": 7,
+      "usesCleartextTraffic": true
+    }
+  }
+}

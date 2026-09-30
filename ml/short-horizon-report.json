@@ -1,0 +1,28 @@
+{
+  "training_scope": "synthetic signals only; no mine or hardware validation",
+  "split": "disjoint generated sessions: train / calibration / test",
+  "sessions": {
+    "train": 700,
+    "calibration": 180,
+    "test": 200
+  },
+  "test_mae_normalized": [
+    0.7287906508613636,
+    0.9399845335275774,
+    1.2680061780982663,
+    1.5212084783354347
+  ],
+  "persistence_mae_normalized": [
+    1.0512623012448254,
+    1.659097472176148,
+    2.3998635625750735,
+    2.9922552710628194
+  ],
+  "test_band_coverage": [
+    0.9,
+    0.9075,
+    0.90625,
+    0.9
+  ],
+  "units": "window standard deviations; not degrees or probability of collapse"
+}

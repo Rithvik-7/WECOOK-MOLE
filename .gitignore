@@ -1,24 +1,44 @@
+# Python
 __pycache__/
-*.pyc
-.DS_Store
-Thumbs.db
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Environment and credentials
 .env
 .env.*
 !.env.example
-!software/.env.example
 *.pem
 *.key
+*.jks
+*.keystore
+
+# Runtime data and evidence
+data/*
+!data/.gitkeep
 *.db
-*.db-wal
-*.db-shm
-software/artifacts/*.joblib
-!software/artifacts/*.prior.joblib
-.pytest_cache/
-software/pytest-cache-files-*/
-.venv/
-.venv*/
-**/.venv/
-**/.venv*/
-tools/arduino-cli/
-tools/arduino-cli-config/
-software/.venv13/
+*.db-*
+gateway/queue.db
+backups/
+
+# JavaScript / Next / Expo
+node_modules/
+.next/
+.next*/
+.expo/
+dist/
+build/
+coverage/
+
+# Android generated files
+mobile/android/.gradle/
+mobile/android/.kotlin/
+mobile/android/app/build/
+mobile/android/app/debug.keystore
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
